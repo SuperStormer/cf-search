@@ -187,11 +187,25 @@
 	populate_dropdown(sort_field_el, SORT_FIELDS, "Total Downloads");
 	populate_dropdown(sort_order_el, SORT_ORDERS, "desc");
 
+	/* prefill form based on query params*/
+	let params = new URLSearchParams(window.location.search);
+	for (let control of search_form.elements) {
+		if (params.has(control.name)) {
+			control.value = params.get(control.name);
+			control.dispatchEvent(new Event("change"));
+		}
+	}
+
 	/* handle form submission */
 	async function update_results(event) {
-		event.preventDefault();
+		if (event !== undefined) {
+			event.preventDefault();
+		}
 
 		let params = new URLSearchParams(new FormData(search_form));
+		if (event !== undefined) {
+			history.pushState({}, "", "?" + params.toString());
+		}
 		params.append("gameId", GAME_ID);
 
 		// index is the index of the first item to include in the response
@@ -253,5 +267,5 @@
 
 	search_form.addEventListener("submit", update_results);
 	Array.from(page_els).forEach((el) => el.addEventListener("change", update_results));
-	update_results({ preventDefault: () => {} });
+	update_results();
 })();
