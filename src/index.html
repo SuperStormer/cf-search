@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<title>Curseforge Search</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" type="text/css" media="screen" href="index.css" />
+		<script src="index.js" defer></script>
+	</head>
+	<body>
+		<main>
+			<form id="search-form">
+				<div id="options">
+					<select id="classes" data-name="Class" name="classId"></select>
+					<select id="categories" data-name="Category" name="categoryId"></select>
+					<select
+						id="modloader"
+						data-name="Mod Loader"
+						name="modLoaderType"
+						disabled
+						title="Only enabled if sub-version is selected - blame Curseforge"
+					></select>
+					<select id="version" data-name="Version" name="gameVersionTypeId"></select>
+					<select id="sub-version" data-name="Sub-version" name="gameVersion"></select>
+					<select id="sort-field" data-name="Sort Field" name="sortField"></select>
+					<select id="sort-order" name="sortOrder"></select>
+					<label>
+						Page Size:
+						<input
+							id="page-size"
+							name="pageSize"
+							type="number"
+							value="25"
+							min="0"
+							max="500"
+						/>
+					</label>
+				</div>
+				<div id="main-row">
+					<input id="query" name="searchFilter" placeholder="Search" />
+					<input type="submit" />
+				</div>
+				<div id="secondary-row">
+					<label>
+						Page:
+						<input class="page" name="page" type="number" value="0" min="0" max="999" />
+					</label>
+					<span id="loading-indicator" hidden>Loading...</span>
+				</div>
+			</form>
+			<ul id="results"></ul>
+			<label>
+				Page:
+				<input class="page" name="page" type="number" value="0" min="0" max="999" />
+			</label>
+		</main>
+	</body>
+</html>

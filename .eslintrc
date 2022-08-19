@@ -1,0 +1,17 @@
+{
+	"extends": ["eslint:recommended"],
+	"env": {
+		"es2021": true,
+		"browser": true
+	},
+	"rules": {
+		"no-console": "off",
+		"no-duplicate-case": "warn",
+		"no-lonely-if": "warn",
+		"no-redeclare": "warn",
+		"no-unused-vars": ["warn", { "varsIgnorePattern": "_" }]
+	},
+	"parserOptions": {
+		"ecmaVersion": 11
+	}
+}

@@ -1,0 +1,63 @@
+body,
+input,
+select {
+	font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+}
+body {
+	padding: 10px;
+}
+
+#search-form {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+}
+label {
+	font-size: 0.9rem;
+}
+input[type="number"] {
+	width: 5ch;
+}
+
+#results {
+	padding-inline-start: 0;
+}
+
+.result {
+	height: 6rem;
+	border: 2px solid #b6b6b6;
+	border-radius: 5px;
+	list-style-type: none;
+	padding: 0.5rem;
+}
+
+.result-logo {
+	height: 4rem;
+	width: 4rem;
+	float: left;
+	margin-right: 15px;
+}
+.result-category-image {
+	height: 25px;
+	width: 25px;
+	margin-left: 5px;
+}
+
+.result-categories,
+.result-secondary {
+	display: flex;
+	flex-direction: row;
+	gap: 10px;
+}
+
+.result-title {
+	font-size: 1.2rem;
+	display: block;
+
+	margin-bottom: 5px;
+}
+
+.result-secondary {
+	font-size: 0.9rem;
+	color: #696969;
+}
