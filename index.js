@@ -165,7 +165,7 @@
 			defaultOption.value = "";
 			defaultOption.selected = true;
 			defaultOption.textContent = dropdown.dataset.name;
-			dropdown.dataset.default = dropdown.dataset.name;
+			dropdown.dataset.default = "";
 			dropdown.prepend(defaultOption);
 		} else {
 			// otherwise, select the corresponding <option>
