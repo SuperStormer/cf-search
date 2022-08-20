@@ -1,11 +1,15 @@
+:root {
+	--border: 1px solid #b6b6b6;
+	--border-radius: 5px;
+}
 body,
 input,
 select,
 button {
-	font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 body {
-	padding: 10px;
+	padding: 15px;
 }
 #content {
 	display: flex;
@@ -16,6 +20,10 @@ body {
 	display: flex;
 	flex-direction: column;
 	gap: 5px;
+	border: var(--border);
+	border-radius: var(--border-radius);
+	padding: 10px;
+	width: fit-content;
 }
 label {
 	font-size: 0.9rem;
@@ -25,8 +33,12 @@ input[type="number"] {
 }
 /* sidebar */
 #sidebar {
-	margin-top: 1em;
-	margin-right: 1em;
+	margin-top: 1.5em;
+	margin-right: 1.5em;
+	padding: 10px;
+	height: fit-content;
+	border: var(--border);
+	border-radius: var(--border-radius);
 }
 
 #filters {
@@ -48,7 +60,7 @@ input[type="number"] {
 /* results */
 #results-container {
 	flex-grow: 0.5;
-	margin-top: 1em;
+	margin-top: 1.5em;
 }
 #results {
 	margin-block-start: 10px;
@@ -58,10 +70,19 @@ input[type="number"] {
 
 .result {
 	min-height: 4.1rem;
-	border: 2px solid #b6b6b6;
-	border-radius: 5px;
+	border: var(--border);
+	border-top: unset;
 	list-style-type: none;
 	padding: 0.75rem;
+}
+
+.result:first-of-type {
+	border-top: var(--border);
+	border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.result:last-of-type {
+	border-radius: 0 0 var(--border-radius) var(--border-radius);
 }
 
 .result-logo {
