@@ -45,6 +45,14 @@
 		}, {});
 	}
 
+	// https://stackoverflow.com/a/50636286
+	function partition(array, filter) {
+		let pass = [],
+			fail = [];
+		array.forEach((e, idx, arr) => (filter(e, idx, arr) ? pass : fail).push(e));
+		return [pass, fail];
+	}
+
 	// based on https://stackoverflow.com/a/4499062
 	function human_readable(number) {
 		if (number < 1000) {
@@ -186,15 +194,26 @@
 		filters_el.appendChild(fragment);
 	}
 	function get_active_filters() {
-		return Array.from(filters_el.elements)
-			.filter((x) => x.checked)
-			.map((x) => parseInt(x.value, 10));
+		let filters = Array.from(filters_el.elements).filter((x) => x.checked);
+		let [include, exclude] = partition(filters, (x) => x.dataset.value === "include");
+		return [
+			include.map((x) => parseInt(x.value, 10)),
+			exclude.map((x) => parseInt(x.value, 10)),
+		];
 	}
 
-	function filter_results(results, active_filters) {
-		return results.filter((result) =>
-			result.categories.some((category) => active_filters.includes(category.id))
-		);
+	function filter_results(results, include, exclude) {
+		if (include.length > 0) {
+			results = results.filter((result) =>
+				result.categories.some((category) => include.includes(category.id))
+			);
+		}
+		if (exclude.length > 0) {
+			results = results.filter((result) =>
+				result.categories.every((category) => !exclude.includes(category.id))
+			);
+		}
+		return results;
 	}
 
 	/* fetch dropdown values from CF API */
@@ -283,13 +302,44 @@
 		}
 	}
 
-	if (params.has("secondaryFilters")) {
-		let filters = params.get("secondaryFilters").split(",");
+	if (params.has("filtersInclude")) {
+		let filters = params.get("filtersInclude").split(",");
 		for (let control of filters_el.elements) {
 			if (filters.includes(control.value)) {
 				control.checked = true;
+				control.dataset.value = "include";
 			}
 		}
+	}
+	if (params.has("filtersExclude")) {
+		let filters = params.get("filtersExclude").split(",");
+		for (let control of filters_el.elements) {
+			if (filters.includes(control.value)) {
+				control.indeterminate = true;
+				control.checked = true;
+				control.dataset.value = "exclude";
+			}
+		}
+	}
+	/* custom checkbox behavior for filters */
+	// cycle from off, include, exclude
+	for (let control of filters_el.elements) {
+		control.addEventListener("change", function (event) {
+			let el = event.target;
+			if (!el.dataset.value || el.dataset.value === "off") {
+				el.checked = true;
+				el.indeterminate = false;
+				el.dataset.value = "include";
+			} else if (el.dataset.value === "include") {
+				el.indeterminate = true;
+				el.checked = true;
+				el.dataset.value = "exclude";
+			} else {
+				el.checked = false;
+				el.indeterminate = false;
+				el.dataset.value = "off";
+			}
+		});
 	}
 	/* reset form */
 	reset_button.addEventListener("click", function () {
@@ -330,11 +380,9 @@
 	}
 
 	function populate_results(results) {
-		let filters = get_active_filters();
-		if (filters.length > 0) {
-			results = filter_results(results, filters);
-		}
-		console.log(results);
+		let [include, exclude] = get_active_filters();
+		results = filter_results(results, include, exclude);
+
 		let fragment = document.createDocumentFragment();
 		for (let result of results) {
 			let li = document.createElement("li");
@@ -408,7 +456,9 @@
 		for (let control of filters_el.elements) {
 			control.addEventListener("change", function () {
 				let params = new URLSearchParams(window.location.search);
-				params.set("secondaryFilters", get_active_filters().join(","));
+				let [include, exclude] = get_active_filters();
+				params.set("filtersInclude", include.join(","));
+				params.set("filtersExclude", exclude.join(","));
 				history.pushState({}, "", "?" + params);
 				populate_results(search_results);
 			});
