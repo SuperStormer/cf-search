@@ -21,7 +21,7 @@ label {
 	font-size: 0.9rem;
 }
 input[type="number"] {
-	width: 4.5ch;
+	width: 5.5ch;
 }
 /* sidebar */
 #sidebar {
@@ -43,13 +43,15 @@ input[type="number"] {
 /* results */
 #results-container {
 	flex-grow: 0.5;
+	margin-top: 1em;
 }
 #results {
+	margin-block-start: 10px;
 	padding-inline-start: 0;
 }
 
 .result {
-	height: 4.1rem;
+	min-height: 4.1rem;
 	border: 2px solid #b6b6b6;
 	border-radius: 5px;
 	list-style-type: none;
@@ -61,7 +63,9 @@ input[type="number"] {
 	width: 4rem;
 	float: left;
 	margin-right: 15px;
+	object-fit: contain;
 }
+
 .result-category-image {
 	height: 25px;
 	width: 25px;

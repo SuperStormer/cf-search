@@ -1,5 +1,7 @@
 (async function () {
-	const API_KEY = "$2a$10$pPhbqMbwV7vj4LwXd9Ye2e1XKKJbctRd6V6N1rYhSspG.CUOt7nb2";
+	// I'm assuming this is safe b/c ferium does the same thing ¯\_(ツ)_/¯
+	// https://github.com/gorilla-devs/ferium/blob/f9bf7906fde4938255bd4e9d95a680ac5646c0b4/src/main.rs#L95
+	const API_KEY = "$2a$10$3kFa9lBWciEK.lsp7NyCSupZ3XmlAYixZQ9fTczqsz1/.W9QDnLUy";
 	const GAME_ID = 432;
 	const MODLOADERS = ["Any", "Forge", "Cauldron", "LiteLoader", "Fabric", "Quilt"].map((v, i) => [
 		v,
@@ -27,6 +29,7 @@
 	let sort_field_el = by_id("sort-field");
 	let sort_order_el = by_id("sort-order");
 	let results_el = by_id("results");
+	let page_size_el = by_id("page-size");
 	let page_els = document.getElementsByClassName("page");
 	let loading_indicator = by_id("loading-indicator");
 	let reset_button = by_id("reset");
@@ -34,6 +37,8 @@
 
 	let search_results;
 	let page = 0;
+	// avoid triggering populate_results when you trigger change event programmatically (in order to populate dropdowns)
+	let should_update = false;
 
 	/* utility functions */
 
@@ -113,7 +118,6 @@
 	}
 
 	function sort_subvers(subvers) {
-		//TODO fix snapshot sorting
 		return subvers.sort((a, b) => {
 			if (a.endsWith("Snapshot")) {
 				return 1;
@@ -158,8 +162,7 @@
 			// if no default value is specified, create a default option with the category name
 			// based on https://stackoverflow.com/a/8442831
 			let defaultOption = document.createElement("option");
-			defaultOption.disabled = true;
-			defaultOption.hidden = true;
+			defaultOption.value = "";
 			defaultOption.selected = true;
 			defaultOption.textContent = dropdown.dataset.name;
 			dropdown.dataset.default = dropdown.dataset.name;
@@ -223,7 +226,7 @@
 	let classes = natural_sort(categories[undefined]);
 	delete categories[undefined];
 
-	//bukkit plugins, customizations, addons - API doesn't work and I don't feel like figuring out why
+	//ignore bukkit plugins, customizations, addons - API doesn't work and I don't feel like figuring out why
 	let brokenClasses = [5, 4546, 4559, 4979];
 	for (let id of brokenClasses) {
 		delete categories[id];
@@ -244,7 +247,6 @@
 	populate_dropdown(categories_el, []);
 	classes_el.addEventListener("change", function () {
 		let class_ = classes_el.options[classes_el.selectedIndex].value;
-		//TODO fix mod sorting to actually respect subcategories
 		let categories2 = categories[class_].map((category) => [category.name, category.id]);
 		populate_dropdown(categories_el, categories2);
 		populate_filters(categories2);
@@ -273,7 +275,14 @@
 	// sub versions
 	populate_dropdown(sub_version_el, []);
 	version_el.addEventListener("change", function () {
-		let version = parseInt(version_el.options[version_el.selectedIndex].value, 10);
+		let val = version_el.options[version_el.selectedIndex].value;
+		console.log(val);
+		if (val === "") {
+			populate_dropdown(sub_version_el, []);
+			return;
+		}
+		let version = parseInt(val, 10);
+
 		let subvers = sort_subvers(sub_versions.find((x) => x.type === version).versions);
 		populate_dropdown(
 			sub_version_el,
@@ -288,39 +297,48 @@
 	populate_dropdown(sort_order_el, SORT_ORDERS, "desc");
 
 	/* prefill forms based on query params*/
-	let params = new URLSearchParams(window.location.search);
-	for (let control of search_form.elements) {
-		if (params.has(control.name)) {
-			control.value = params.get(control.name);
-			control.dispatchEvent(new Event("change"));
+	function prefill_forms() {
+		let params = new URLSearchParams(window.location.search);
+		for (let control of search_form.elements) {
+			if (params.has(control.name)) {
+				control.value = params.get(control.name);
+				control.dispatchEvent(new Event("change"));
+			}
 		}
-	}
 
-	if (params.has("page")) {
-		for (let page_el of page_els) {
-			page_el.value = params.get("page");
+		if (params.has("page")) {
+			for (let page_el of page_els) {
+				page_el.value = params.get("page");
+			}
 		}
-	}
 
-	if (params.has("filtersInclude")) {
-		let filters = params.get("filtersInclude").split(",");
-		for (let control of filters_el.elements) {
-			if (filters.includes(control.value)) {
-				control.checked = true;
-				control.dataset.value = "include";
+		if (params.has("filtersInclude")) {
+			let filters = params.get("filtersInclude").split(",");
+			for (let control of filters_el.elements) {
+				if (filters.includes(control.value)) {
+					control.checked = true;
+					control.dataset.value = "include";
+				}
+			}
+		}
+		if (params.has("filtersExclude")) {
+			let filters = params.get("filtersExclude").split(",");
+			for (let control of filters_el.elements) {
+				if (filters.includes(control.value)) {
+					control.indeterminate = true;
+					control.checked = true;
+					control.dataset.value = "exclude";
+				}
 			}
 		}
 	}
-	if (params.has("filtersExclude")) {
-		let filters = params.get("filtersExclude").split(",");
-		for (let control of filters_el.elements) {
-			if (filters.includes(control.value)) {
-				control.indeterminate = true;
-				control.checked = true;
-				control.dataset.value = "exclude";
-			}
-		}
-	}
+	prefill_forms();
+	window.addEventListener("popstate", function () {
+		reset_form();
+		should_update = false;
+		prefill_forms();
+		should_update = true;
+	});
 	/* custom checkbox behavior for filters */
 	// cycle from off, include, exclude
 	for (let control of filters_el.elements) {
@@ -341,24 +359,55 @@
 			}
 		});
 	}
+	/* override validation for page size */
+	// https://stackoverflow.com/a/51585161
+	page_size_el.addEventListener("invalid", function (event) {
+		let el = event.target;
+		for (let state in el.validity) {
+			if (state == "stepMismatch") {
+				continue;
+			}
+			if (el.validity[state]) {
+				return true;
+			}
+		}
+		event.preventDefault();
+		el.form.submit();
+	});
+	/* reset page numbering when query changes*/
+	function reset_page() {
+		page = 0;
+		for (let el of page_els) {
+			el.value = 0;
+		}
+	}
 	/* reset form */
-	reset_button.addEventListener("click", function () {
+	function reset_form() {
 		for (let control of search_form.elements) {
 			if (control.dataset.default) {
 				control.value = control.dataset.default;
 			}
 		}
-		history.pushState({}, "", "");
+
+		for (let control of filters_el.elements) {
+			control.dataset.value = "off";
+			control.checked = false;
+			control.indeterminate = false;
+		}
+
+		modloader_el.title = "";
+		modloader_el.disabled = false;
+	}
+	reset_button.addEventListener("click", function (event) {
+		event.preventDefault();
+		history.pushState({}, "", window.location.pathname);
+		reset_form();
 	});
 	/* handle form submission */
 	async function update_results(event) {
-		if (event !== undefined) {
-			event.preventDefault();
-		}
-
 		let params = new URLSearchParams(new FormData(search_form));
 
-		if (event !== undefined) {
+		if (should_update) {
 			history.pushState({}, "", "?" + params.toString());
 		}
 
@@ -368,14 +417,35 @@
 			params.delete("modLoaderType");
 		}
 
-		// index is the index of the first item to include in the response
-		params.append("index", parseInt(params.get("pageSize"), 10) * page);
-		params.delete("page");
-
 		loading_indicator.hidden = false;
-		search_results = await cf_api("/v1/mods/search", params);
-		console.log(search_results);
-		populate_results(search_results);
+		results_el.innerHTML = "";
+
+		search_results = [];
+
+		// since CF API only lets us fetch 50 at a time,
+		// this horrible code splits the desired pageSize into multiple requests
+		let queries = [];
+		let page_size = parseInt(params.get("pageSize"), 10);
+		for (let offset = 0; offset < page_size; offset += 50) {
+			let real_page_size = Math.min(50, page_size - offset);
+			let params2 = new URLSearchParams(params);
+			// index is the index of the first item to include in the response
+			let index = page_size * page + offset;
+			params2.set("index", index);
+			params2.set("pageSize", real_page_size);
+
+			queries.push(cf_api("/v1/mods/search", params2));
+		}
+
+		// await each query in order to ensure results are properly ordered
+		let query_results = [];
+		for (let query of queries) {
+			let query_result = await query;
+			console.log(query_result);
+			populate_results(query_result);
+			query_results.push(query_result);
+		}
+		search_results = query_results.flat();
 		loading_indicator.hidden = true;
 	}
 
@@ -429,11 +499,16 @@
 			li.append(logo, title, secondary, categories);
 			fragment.append(li);
 		}
-		results_el.innerHTML = "";
 		results_el.appendChild(fragment);
 	}
 
-	search_form.addEventListener("submit", update_results);
+	search_form.addEventListener("submit", function (event) {
+		event.preventDefault();
+		if (event.target.reportValidity()) {
+			reset_page();
+			update_results();
+		}
+	});
 	for (let page_el of page_els) {
 		page_el.addEventListener("change", function (event) {
 			page = parseInt(event.target.value, 10);
@@ -446,22 +521,29 @@
 		});
 	}
 
-	update_results();
-	setTimeout(function () {
-		for (let control of search_form.elements) {
-			if (control.type !== "submit") {
-				control.addEventListener("change", update_results);
-			}
-		}
-		for (let control of filters_el.elements) {
+	for (let control of search_form.elements) {
+		if (control.type !== "submit") {
 			control.addEventListener("change", function () {
-				let params = new URLSearchParams(window.location.search);
-				let [include, exclude] = get_active_filters();
-				params.set("filtersInclude", include.join(","));
-				params.set("filtersExclude", exclude.join(","));
-				history.pushState({}, "", "?" + params);
-				populate_results(search_results);
+				if (should_update) {
+					reset_page();
+					update_results();
+				}
 			});
 		}
-	}, 0);
+	}
+
+	for (let control of filters_el.elements) {
+		control.addEventListener("change", function () {
+			let params = new URLSearchParams(window.location.search);
+			let [include, exclude] = get_active_filters();
+			params.set("filtersInclude", include.join(","));
+			params.set("filtersExclude", exclude.join(","));
+			history.pushState({}, "", "?" + params);
+			results_el.innerHTML = "";
+			populate_results(search_results);
+		});
+	}
+
+	update_results();
+	should_update = true;
 })();
