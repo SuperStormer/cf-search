@@ -228,7 +228,8 @@
 	let classes = natural_sort(categories[undefined]);
 	delete categories[undefined];
 
-	//ignore bukkit plugins, customizations, addons - API doesn't work and I don't feel like figuring out why
+	//ignore bukkit plugins, customizations, addons
+	// API doesn't work and I don't feel like figuring out why
 	let brokenClasses = [5, 4546, 4559, 4979];
 	for (let id of brokenClasses) {
 		delete categories[id];
@@ -242,6 +243,11 @@
 
 	let versions = sort_vers(await cf_api(`/v1/games/${GAME_ID}/version-types`));
 	let sub_versions = await cf_api(`/v1/games/${GAME_ID}/versions`);
+
+	// ignore Fabric, FancyMenu, QoL, Vanilla+ tags
+	// these tags don't exist anymore, idk why they're still in the API
+	let brokenModCategories = [5192, 4780, 5190, 5129];
+	categories[6] = categories[6].filter((x) => !brokenModCategories.includes(x.id));
 
 	/* populate dropdowns */
 
@@ -278,7 +284,7 @@
 	populate_dropdown(sub_version_el, []);
 	version_el.addEventListener("change", function () {
 		let val = version_el.options[version_el.selectedIndex].value;
-		console.log(val);
+
 		if (val === "") {
 			populate_dropdown(sub_version_el, []);
 			return;
