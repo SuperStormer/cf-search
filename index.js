@@ -404,7 +404,7 @@
 		reset_form();
 	});
 	/* handle form submission */
-	async function update_results(event) {
+	async function update_results() {
 		let params = new URLSearchParams(new FormData(search_form));
 
 		if (should_update) {
@@ -474,6 +474,11 @@
 			created.textContent = `Created ${new Date(result.dateCreated).toLocaleDateString()}`;
 			secondary.append(downloads, updated, created);
 
+			// summary
+			let summary = document.createElement("p");
+			summary.className = "result-summary";
+			summary.textContent = result.summary;
+
 			// category images
 			let categories = document.createElement("div");
 			categories.className = "result-categories";
@@ -496,7 +501,7 @@
 			if (result.logo) {
 				logo.src = result.logo.thumbnailUrl;
 			}
-			li.append(logo, title, secondary, categories);
+			li.append(logo, categories, title, secondary, summary);
 			fragment.append(li);
 		}
 		results_el.appendChild(fragment);
