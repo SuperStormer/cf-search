@@ -36,8 +36,13 @@ input[type="number"] {
 
 #notice {
 	font-style: italic;
-	font-size: 0.7em;
+	font-size: 0.8em;
 	width: 40ch;
+	padding: 5px;
+}
+
+#source {
+	font-size: 0.8em;
 	padding: 5px;
 }
 /* results */
