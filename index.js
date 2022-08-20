@@ -95,26 +95,28 @@
 	}
 
 	function sort_vers(versions) {
-		return versions.sort((a, b) => {
-			a = a.name;
-			b = b.name;
-			if (a.startsWith("Minecraft")) {
-				if (b.startsWith("Minecraft")) {
-					if (a === "Minecraft Beta") {
-						return 1;
-					} else if (b === "Minecraft Beta") {
-						return -1;
-					}
+		return versions
+			.filter((x) => x.name.startsWith("Minecraft")) //TODO figure out why other versions don't work and remove this temp fix
+			.sort((a, b) => {
+				a = a.name;
+				b = b.name;
+				if (a.startsWith("Minecraft")) {
+					if (b.startsWith("Minecraft")) {
+						if (a === "Minecraft Beta") {
+							return 1;
+						} else if (b === "Minecraft Beta") {
+							return -1;
+						}
 
-					return -a.localeCompare(b, undefined, { numeric: true });
+						return -a.localeCompare(b, undefined, { numeric: true });
+					}
+					return -1;
 				}
-				return -1;
-			}
-			if (b.startsWith("Minecraft")) {
-				return 1;
-			}
-			return a.localeCompare(b, undefined, { numeric: true });
-		});
+				if (b.startsWith("Minecraft")) {
+					return 1;
+				}
+				return a.localeCompare(b, undefined, { numeric: true });
+			});
 	}
 
 	function sort_subvers(subvers) {
@@ -517,6 +519,10 @@
 	for (let page_el of page_els) {
 		page_el.addEventListener("change", function (event) {
 			page = parseInt(event.target.value, 10);
+
+			for (let page_el2 of page_els) {
+				page_el2.value = page;
+			}
 
 			let params = new URLSearchParams(window.location.search);
 			params.set("page", page);
