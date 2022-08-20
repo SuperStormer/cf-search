@@ -210,7 +210,7 @@
 	function filter_results(results, include, exclude) {
 		if (include.length > 0) {
 			results = results.filter((result) =>
-				result.categories.some((category) => include.includes(category.id))
+				include.every((id) => result.categories.find((category) => category.id == id))
 			);
 		}
 		if (exclude.length > 0) {
