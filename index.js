@@ -140,6 +140,7 @@
 		if (endpoint.startsWith("/")) {
 			endpoint = endpoint.slice(1);
 		}
+
 		return fetch("https://api.curseforge.com/" + endpoint + "?" + params, {
 			headers: { "x-api-key": API_KEY, accept: "application/json" },
 		})
@@ -258,33 +259,49 @@
 	}
 
 	/* fetch dropdown values from CF API */
-	let categories = await cf_api("/v1/categories", { gameId: GAME_ID });
-	categories = group_by(categories, "classId");
+	async function fetch_categories() {
+		let categories = await cf_api("/v1/categories", { gameId: GAME_ID });
+		categories = group_by(categories, "classId");
 
-	let classes = natural_sort(categories[undefined]);
-	delete categories[undefined];
+		let classes = natural_sort(categories[undefined]);
+		delete categories[undefined];
 
-	// ignore bukkit plugins, customizations, addons
-	// API doesn't work and I don't feel like figuring out why
-	let brokenClasses = [5, 4546, 4559, 4979];
-	for (let id of brokenClasses) {
-		delete categories[id];
+		// ignore bukkit plugins, customizations, addons
+		// API doesn't work and I don't feel like figuring out why
+		let brokenClasses = [5, 4546, 4559, 4979];
+		for (let id of brokenClasses) {
+			delete categories[id];
+		}
+		classes = classes.filter((x) => !brokenClasses.includes(x.id));
+
+		// format categories
+		for (let class_ in categories) {
+			categories[class_] = format_categories(categories[class_], class_);
+		}
+
+		// ignore Fabric, FancyMenu, QoL, Vanilla+ tags
+		// these tags don't exist anymore, idk why they're still in the API
+		let brokenModCategories = [5192, 4780, 5190, 5129];
+		categories[6] = categories[6].filter((x) => !brokenModCategories.includes(x.id));
+		return [classes, categories];
 	}
-	classes = classes.filter((x) => !brokenClasses.includes(x.id));
 
-	// format categories
-	for (let class_ in categories) {
-		categories[class_] = format_categories(categories[class_], class_);
+	async function fetch_vers() {
+		return sort_vers(await cf_api(`/v1/games/${GAME_ID}/version-types`));
 	}
 
-	// ignore Fabric, FancyMenu, QoL, Vanilla+ tags
-	// these tags don't exist anymore, idk why they're still in the API
-	let brokenModCategories = [5192, 4780, 5190, 5129];
-	categories[6] = categories[6].filter((x) => !brokenModCategories.includes(x.id));
+	function fetch_subvers() {
+		return cf_api(`/v1/games/${GAME_ID}/versions`);
+	}
 
-	// versions and subversions
-	let versions = sort_vers(await cf_api(`/v1/games/${GAME_ID}/version-types`));
-	let sub_versions = await cf_api(`/v1/games/${GAME_ID}/versions`);
+	// fetch in parallel
+	// TODO cache results
+	let [categories_result, versions, sub_versions] = await Promise.all([
+		fetch_categories(),
+		fetch_vers(),
+		fetch_subvers(),
+	]);
+	let [classes, categories] = categories_result;
 
 	/* populate dropdowns */
 
