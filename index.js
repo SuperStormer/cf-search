@@ -568,6 +568,7 @@
 			if (result.logo) {
 				logo.src = result.logo.thumbnailUrl;
 			}
+			logo.alt = "";
 
 			li.append(logo, categories, title, secondary, summary);
 			fragment.append(li);
