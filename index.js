@@ -294,14 +294,18 @@
 		return cf_api(`/v1/games/${GAME_ID}/versions`);
 	}
 
-	// fetch in parallel
-	// TODO cache results
-	let [categories_result, versions, sub_versions] = await Promise.all([
-		fetch_categories(),
-		fetch_vers(),
-		fetch_subvers(),
-	]);
-	let [classes, categories] = categories_result;
+	// fetch in parallel and cache
+	let cache_time = localStorage.getItem("cache_time");
+	let now = Date.now();
+	let classes, categories, versions, sub_versions;
+	if (!cache_time || now - cache_time > 24 * 60 * 60 * 1000) {
+		let result = await Promise.all([fetch_categories(), fetch_vers(), fetch_subvers()]);
+		[[classes, categories], versions, sub_versions] = result;
+		localStorage.setItem("cache", JSON.stringify(result));
+		localStorage.setItem("cache_time", now);
+	} else {
+		[[classes, categories], versions, sub_versions] = JSON.parse(localStorage.getItem("cache"));
+	}
 
 	/* populate dropdowns */
 

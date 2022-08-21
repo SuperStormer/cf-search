@@ -154,3 +154,9 @@ input[type="number"] {
 		color: rgb(131, 46, 205);
 	}
 }
+
+@media (max-width: 768px) {
+	#notice {
+		width: 25ch;
+	}
+}
