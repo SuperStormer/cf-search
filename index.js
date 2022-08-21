@@ -177,7 +177,7 @@
 			dropdown.dispatchEvent(new Event("change"));
 		}
 	}
-	/* handle secondary filters */
+	/* handle visual filters */
 	function populate_filters(categories) {
 		filters_el.innerHTML = "";
 		let fragment = document.createDocumentFragment();
@@ -189,6 +189,38 @@
 			checkbox.type = "checkbox";
 			checkbox.name = category;
 			checkbox.value = id;
+
+			checkbox.addEventListener("change", function (event) {
+				// custom checkbox behavior for filters
+				// cycle from off, include, exclude
+				let el = event.target;
+				if (!el.dataset.value || el.dataset.value === "off") {
+					// off -> include
+					el.checked = true;
+					el.indeterminate = false;
+					el.dataset.value = "include";
+				} else if (el.dataset.value === "include") {
+					// include -> exclude
+					el.indeterminate = true;
+					el.checked = true;
+					el.dataset.value = "exclude";
+				} else {
+					// exclude -> off
+					el.checked = false;
+					el.indeterminate = false;
+					el.dataset.value = "off";
+				}
+
+				// handle filtering
+				let params = new URLSearchParams(window.location.search);
+				let [include, exclude] = get_active_filters();
+				console.log(get_active_filters());
+				params.set("filtersInclude", include.join(","));
+				params.set("filtersExclude", exclude.join(","));
+				history.pushState({}, "", "?" + params);
+				results_el.innerHTML = "";
+				populate_results(search_results);
+			});
 
 			let label = document.createTextNode(category);
 
@@ -208,16 +240,20 @@
 	}
 
 	function filter_results(results, include, exclude) {
+		// handle includes
 		if (include.length > 0) {
 			results = results.filter((result) =>
 				include.every((id) => result.categories.find((category) => category.id == id))
 			);
 		}
+
+		//handle excludes
 		if (exclude.length > 0) {
 			results = results.filter((result) =>
 				result.categories.every((category) => !exclude.includes(category.id))
 			);
 		}
+
 		return results;
 	}
 
@@ -228,7 +264,7 @@
 	let classes = natural_sort(categories[undefined]);
 	delete categories[undefined];
 
-	//ignore bukkit plugins, customizations, addons
+	// ignore bukkit plugins, customizations, addons
 	// API doesn't work and I don't feel like figuring out why
 	let brokenClasses = [5, 4546, 4559, 4979];
 	for (let id of brokenClasses) {
@@ -241,18 +277,20 @@
 		categories[class_] = format_categories(categories[class_], class_);
 	}
 
-	let versions = sort_vers(await cf_api(`/v1/games/${GAME_ID}/version-types`));
-	let sub_versions = await cf_api(`/v1/games/${GAME_ID}/versions`);
-
 	// ignore Fabric, FancyMenu, QoL, Vanilla+ tags
 	// these tags don't exist anymore, idk why they're still in the API
 	let brokenModCategories = [5192, 4780, 5190, 5129];
 	categories[6] = categories[6].filter((x) => !brokenModCategories.includes(x.id));
 
+	// versions and subversions
+	let versions = sort_vers(await cf_api(`/v1/games/${GAME_ID}/version-types`));
+	let sub_versions = await cf_api(`/v1/games/${GAME_ID}/versions`);
+
 	/* populate dropdowns */
 
 	// categories
 	populate_dropdown(categories_el, []);
+
 	classes_el.addEventListener("change", function () {
 		let class_ = classes_el.options[classes_el.selectedIndex].value;
 		let categories2 = categories[class_].map((category) => [category.name, category.id]);
@@ -269,6 +307,7 @@
 
 	// modloaders
 	populate_dropdown(modloader_el, MODLOADERS, "Any");
+
 	sub_version_el.addEventListener("change", function () {
 		modloader_el.title = "";
 		modloader_el.disabled = false;
@@ -282,13 +321,16 @@
 
 	// sub versions
 	populate_dropdown(sub_version_el, []);
+
 	version_el.addEventListener("change", function () {
 		let val = version_el.options[version_el.selectedIndex].value;
 
+		// reset subvers dropdown if version was deselected
 		if (val === "") {
 			populate_dropdown(sub_version_el, []);
 			return;
 		}
+
 		let version = parseInt(val, 10);
 
 		let subvers = sort_subvers(sub_versions.find((x) => x.type === version).versions);
@@ -296,17 +338,20 @@
 			sub_version_el,
 			subvers.map((x) => [x, x])
 		);
+
 		modloader_el.title = modloader_el.dataset.title;
 		modloader_el.disabled = true;
 	});
 
-	// sort
+	// sort field and order
 	populate_dropdown(sort_field_el, SORT_FIELDS, "Total Downloads");
 	populate_dropdown(sort_order_el, SORT_ORDERS, "desc");
 
 	/* prefill forms based on query params*/
 	function prefill_forms() {
 		let params = new URLSearchParams(window.location.search);
+
+		// prefill search form
 		for (let control of search_form.elements) {
 			if (params.has(control.name)) {
 				control.value = params.get(control.name);
@@ -314,12 +359,14 @@
 			}
 		}
 
+		// prefill page selector
 		if (params.has("page")) {
 			for (let page_el of page_els) {
 				page_el.value = params.get("page");
 			}
 		}
 
+		// prefill visual filters
 		if (params.has("filtersInclude")) {
 			let filters = params.get("filtersInclude").split(",");
 			for (let control of filters_el.elements) {
@@ -340,34 +387,18 @@
 			}
 		}
 	}
+
 	prefill_forms();
+
+	// back + forward history buttons
 	window.addEventListener("popstate", function () {
 		reset_form();
 		should_update = false;
 		prefill_forms();
 		should_update = true;
 	});
-	/* custom checkbox behavior for filters */
-	// cycle from off, include, exclude
-	for (let control of filters_el.elements) {
-		control.addEventListener("change", function (event) {
-			let el = event.target;
-			if (!el.dataset.value || el.dataset.value === "off") {
-				el.checked = true;
-				el.indeterminate = false;
-				el.dataset.value = "include";
-			} else if (el.dataset.value === "include") {
-				el.indeterminate = true;
-				el.checked = true;
-				el.dataset.value = "exclude";
-			} else {
-				el.checked = false;
-				el.indeterminate = false;
-				el.dataset.value = "off";
-			}
-		});
-	}
-	/* override validation for page size */
+
+	/* override step validation for page size in search form*/
 	// https://stackoverflow.com/a/51585161
 	page_size_el.addEventListener("invalid", function (event) {
 		let el = event.target;
@@ -382,6 +413,7 @@
 		event.preventDefault();
 		el.form.submit();
 	});
+
 	/* reset page numbering when query changes*/
 	function reset_page() {
 		page = 0;
@@ -389,7 +421,8 @@
 			el.value = 0;
 		}
 	}
-	/* reset form */
+
+	/* reset form*/
 	function reset_form() {
 		for (let control of search_form.elements) {
 			if (control.dataset.default) {
@@ -406,11 +439,13 @@
 		modloader_el.title = "";
 		modloader_el.disabled = false;
 	}
+
 	reset_button.addEventListener("click", function (event) {
 		event.preventDefault();
 		history.pushState({}, "", window.location.pathname);
 		reset_form();
 	});
+
 	/* handle form submission */
 	async function update_results() {
 		let params = new URLSearchParams(new FormData(search_form));
@@ -420,6 +455,7 @@
 		}
 
 		params.append("gameId", GAME_ID);
+
 		// work-around for curseforge API being bad
 		if (params.get("gameVersion") && params.get("modLoaderType") === "0") {
 			params.delete("modLoaderType");
@@ -434,18 +470,21 @@
 		// this horrible code splits the desired pageSize into multiple requests
 		let queries = [];
 		let page_size = parseInt(params.get("pageSize"), 10);
+
 		for (let offset = 0; offset < page_size; offset += 50) {
 			let real_page_size = Math.min(50, page_size - offset);
 			let params2 = new URLSearchParams(params);
+
 			// index is the index of the first item to include in the response
 			let index = page_size * page + offset;
+
 			params2.set("index", index);
 			params2.set("pageSize", real_page_size);
 
 			queries.push(cf_api("/v1/mods/search", params2));
 		}
 
-		// await each query in order to ensure results are properly ordered
+		// await each query sequentially to ensure result elements are properly ordered
 		let query_results = [];
 		for (let query of queries) {
 			let query_result = await query;
@@ -454,6 +493,7 @@
 			query_results.push(query_result);
 		}
 		search_results = query_results.flat();
+
 		loading_indicator.hidden = true;
 	}
 
@@ -466,6 +506,7 @@
 			let li = document.createElement("li");
 			li.className = "result";
 
+			//title
 			let title = document.createElement("a");
 			title.className = "result-title";
 			title.href = result.links.websiteUrl;
@@ -504,17 +545,20 @@
 				categories.appendChild(el);
 			}
 
+			//logo
 			let logo = document.createElement("img");
 			logo.className = "result-logo";
 			if (result.logo) {
 				logo.src = result.logo.thumbnailUrl;
 			}
+
 			li.append(logo, categories, title, secondary, summary);
 			fragment.append(li);
 		}
 		results_el.appendChild(fragment);
 	}
 
+	// update results if form is submitted
 	search_form.addEventListener("submit", function (event) {
 		event.preventDefault();
 		if (event.target.reportValidity()) {
@@ -522,6 +566,8 @@
 			update_results();
 		}
 	});
+
+	// update results when page changes
 	for (let page_el of page_els) {
 		page_el.addEventListener("change", function (event) {
 			page = parseInt(event.target.value, 10);
@@ -538,6 +584,7 @@
 		});
 	}
 
+	// update results when dropdowns are changed
 	for (let control of search_form.elements) {
 		if (control.type !== "submit") {
 			control.addEventListener("change", function () {
@@ -549,18 +596,9 @@
 		}
 	}
 
-	for (let control of filters_el.elements) {
-		control.addEventListener("change", function () {
-			let params = new URLSearchParams(window.location.search);
-			let [include, exclude] = get_active_filters();
-			params.set("filtersInclude", include.join(","));
-			params.set("filtersExclude", exclude.join(","));
-			history.pushState({}, "", "?" + params);
-			results_el.innerHTML = "";
-			populate_results(search_results);
-		});
-	}
-
+	// fetch default results
 	update_results();
+
+	// allow "change" events to call update_results
 	should_update = true;
 })();
