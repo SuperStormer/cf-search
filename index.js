@@ -313,7 +313,16 @@
 	populate_dropdown(categories_el, []);
 
 	classes_el.addEventListener("change", function () {
-		let class_ = classes_el.options[classes_el.selectedIndex].value;
+		let class_ = classes_el.value;
+		if (class_ === "6" && sub_version_el.value !== "") {
+			// if mods is selected, and a subver is selected,
+			// enable the modloader dropdown
+			modloader_el.title = "";
+			modloader_el.disabled = false;
+		} else {
+			modloader_el.title = modloader_el.dataset.title;
+			modloader_el.disabled = true;
+		}
 		let categories2 = categories[class_].map((category) => [category.name, category.id]);
 		populate_dropdown(categories_el, categories2);
 		populate_filters(categories2);
@@ -330,8 +339,12 @@
 	populate_dropdown(modloader_el, MODLOADERS, "Any");
 
 	sub_version_el.addEventListener("change", function () {
-		modloader_el.title = "";
-		modloader_el.disabled = false;
+		// if mods is selected
+		let class_ = classes_el.value;
+		if (class_ === "6") {
+			modloader_el.title = "";
+			modloader_el.disabled = false;
+		}
 	});
 
 	// versions
@@ -344,7 +357,7 @@
 	populate_dropdown(sub_version_el, []);
 
 	version_el.addEventListener("change", function () {
-		let val = version_el.options[version_el.selectedIndex].value;
+		let val = version_el.value;
 
 		// reset subvers dropdown if version was deselected
 		if (val === "") {
