@@ -487,6 +487,7 @@
 		if (should_update) {
 			let params2 = new URLSearchParams(params);
 
+			// don't overwrite filters query params
 			let [include, exclude] = get_active_filters();
 			params2.set("filtersInclude", include.join(","));
 			params2.set("filtersExclude", exclude.join(","));
