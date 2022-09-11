@@ -436,7 +436,7 @@
 	});
 
 	/* override step validation for page size in search form*/
-	// https://stackoverflow.com/a/51585161
+	// based on https://stackoverflow.com/a/51585161
 	page_size_el.addEventListener("invalid", function (event) {
 		let el = event.target;
 		for (let state in el.validity) {
@@ -447,10 +447,10 @@
 				return;
 			}
 		}
-
 		event.preventDefault();
+		reset_page();
+		update_results();
 	});
-
 	/* reset page numbering when query changes*/
 	function reset_page() {
 		page = 0;
@@ -609,10 +609,8 @@
 	search_form.addEventListener("submit", function (event) {
 		event.preventDefault();
 
-		if (event.target.reportValidity()) {
-			reset_page();
-			update_results();
-		}
+		reset_page();
+		update_results();
 	});
 
 	// update results when page changes
