@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Curseforge Search</title>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+		<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+		<link rel="stylesheet" type="text/css" media="screen" href="index.css" />
+		<script src="index.js" defer></script>
+	</head>
+	<body>
+		<form id="search-form">
+			<div id="options">
+				<select id="classes" data-name="Class" name="classId"></select>
+				<select id="categories" data-name="Category" name="categoryId"></select>
+				<select id="version" data-name="Version" name="gameVersionTypeId"></select>
+				<select id="sub-version" data-name="Sub-version" name="gameVersion"></select>
+				<select
+					id="modloader"
+					data-name="Mod Loader"
+					name="modLoaderType"
+					disabled
+					data-title="Only enabled if a sub-version and the Mods category is selected - blame Curseforge"
+					title="Only enabled if a sub-version and the Mods category is selected - blame Curseforge"
+				></select>
+				<select id="sort-field" data-name="Sort Field" name="sortField"></select>
+				<select id="sort-order" name="sortOrder"></select>
+				<label>
+					Page Size:
+					<input
+						id="page-size"
+						name="pageSize"
+						type="number"
+						value="50"
+						data-default="50"
+						min="0"
+						max="999"
+						step="50"
+					/>
+				</label>
+			</div>
+			<div id="main-row">
+				<input id="query" name="searchFilter" placeholder="Search" />
+				<button id="submit-button">Submit</button>
+				<button id="reset">Reset</button>
+			</div>
+		</form>
+		<div id="content">
+			<aside id="sidebar">
+				<div>Visual Filters</div>
+				<form id="filters"></form>
+				<div id="notice">
+					Note: these filters only hide results per page, so you may see few results
+					depending on the filters you select. If this occurs, try increasing the page
+					size.
+				</div>
+				<a id="source" href="https://github.com/superstormer/cf-search">Github </a>
+			</aside>
+			<main id="results-container">
+				<div id="secondary-row">
+					<label>
+						Page:
+						<input
+							class="page"
+							name="page"
+							type="number"
+							value="0"
+							data-default="0"
+							min="0"
+							max="999"
+						/>
+					</label>
+					<span id="loading-indicator" hidden>Loading...</span>
+				</div>
+				<ul id="results"></ul>
+				<label>
+					Page:
+					<input class="page" name="page" type="number" value="0" min="0" max="999" />
+				</label>
+			</main>
+		</div>
+	</body>
+</html>
