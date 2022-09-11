@@ -1,0 +1,27 @@
+{
+	"name": "cf-search",
+	"version": "1.0.0",
+	"description": "https://superstormer.github.io/cf-search/",
+	"scripts": {
+		"build": "./build.sh",
+		"build:dev": "NODE_ENV=development ./build.sh",
+		"clean": "rm -rf dist",
+		"dev": "nodemon --exec npm run build:dev --watch src/ --ext '*' & cd dist && python3 -m http.server"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/SuperStormer/cf-search.git"
+	},
+	"author": "SuperStormer",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/SuperStormer/cf-search/issues"
+	},
+	"homepage": "https://github.com/SuperStormer/cf-search#readme",
+	"devDependencies": {
+		"nodemon": "^2.0.19",
+		"terser-webpack-plugin": "^5.3.6",
+		"webpack-cli": "^4.10.0",
+		"webpack-dev-server": "^4.11.0"
+	}
+}
