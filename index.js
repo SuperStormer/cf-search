@@ -483,6 +483,7 @@
 		event.preventDefault();
 		history.pushState({}, "", window.location.pathname);
 		reset_form();
+		update_results();
 	});
 
 	/* handle form submission */
