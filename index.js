@@ -315,16 +315,9 @@
 	populate_dropdown(categories_el, []);
 
 	classes_el.addEventListener("change", function () {
+		update_modloader();
+
 		let class_ = classes_el.value;
-		if (class_ === "6" && sub_version_el.value !== "") {
-			// if mods is selected, and a subver is selected,
-			// enable the modloader dropdown
-			modloader_el.title = "";
-			modloader_el.disabled = false;
-		} else {
-			modloader_el.title = modloader_el.dataset.title;
-			modloader_el.disabled = true;
-		}
 
 		let categories2 = categories[class_].map((category) => [category.name, category.id]);
 		populate_dropdown(categories_el, categories2);
@@ -342,14 +335,28 @@
 	populate_dropdown(modloader_el, MODLOADERS, "Any");
 
 	sub_version_el.addEventListener("change", function () {
-		// if mods is selected
-		let class_ = classes_el.value;
-		if (class_ === "6") {
-			modloader_el.title = "";
-			modloader_el.disabled = false;
-		}
+		update_modloader();
 	});
 
+	function disable_modloader() {
+		modloader_el.title = modloader_el.dataset.title;
+		modloader_el.disabled = true;
+	}
+
+	function enable_modloader() {
+		modloader_el.title = "";
+		modloader_el.disabled = false;
+	}
+
+	function update_modloader() {
+		if (classes_el.value === "6" && sub_version_el.value !== "") {
+			// if mods is selected and a subver is selected,
+			// enable the modloader dropdown
+			enable_modloader();
+		} else {
+			disable_modloader();
+		}
+	}
 	// versions
 	populate_dropdown(
 		version_el,
@@ -376,8 +383,7 @@
 			subvers.map((x) => [x, x])
 		);
 
-		modloader_el.title = modloader_el.dataset.title;
-		modloader_el.disabled = true;
+		disable_modloader();
 	});
 
 	// sort field and order
@@ -464,7 +470,6 @@
 		for (let control of search_form.elements) {
 			if (control.dataset.default !== undefined) {
 				control.value = control.dataset.default;
-				console.log(control.value);
 			} else if (control.type === "text") {
 				control.value = "";
 			}
@@ -476,8 +481,7 @@
 			control.indeterminate = false;
 		}
 
-		modloader_el.title = "";
-		modloader_el.disabled = false;
+		disable_modloader();
 	}
 
 	reset_button.addEventListener("click", function (event) {
