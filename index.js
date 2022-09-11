@@ -219,8 +219,10 @@
 				params.set("filtersInclude", include.join(","));
 				params.set("filtersExclude", exclude.join(","));
 				history.pushState({}, "", "?" + params);
+
 				results_el.innerHTML = "";
-				populate_results(search_results);
+				// setTimeout to avoid delay in checkbox visual update for large lists
+				setTimeout(() => populate_results(search_results), 0);
 			});
 
 			let label = document.createTextNode(category);
@@ -323,6 +325,7 @@
 			modloader_el.title = modloader_el.dataset.title;
 			modloader_el.disabled = true;
 		}
+
 		let categories2 = categories[class_].map((category) => [category.name, category.id]);
 		populate_dropdown(categories_el, categories2);
 		populate_filters(categories2);
@@ -441,11 +444,11 @@
 				continue;
 			}
 			if (el.validity[state]) {
-				return true;
+				return;
 			}
 		}
+
 		event.preventDefault();
-		el.form.submit();
 	});
 
 	/* reset page numbering when query changes*/
@@ -612,6 +615,10 @@
 	// update results when page changes
 	for (let page_el of page_els) {
 		page_el.addEventListener("change", function (event) {
+			if (!page_el.reportValidity()) {
+				return;
+			}
+
 			page = parseInt(event.target.value, 10);
 
 			for (let page_el2 of page_els) {

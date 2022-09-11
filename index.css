@@ -63,12 +63,16 @@ input[type="number"] {
 	flex-grow: 0.5;
 	margin-top: 1.5em;
 }
+
 #results {
 	margin-block-start: 10px;
 	padding-inline-start: 0;
 	max-width: 850px;
 }
 
+#loading-indicator {
+	margin-left: 5px;
+}
 .result {
 	min-height: 4.1rem;
 	border: var(--border);
@@ -128,6 +132,7 @@ input[type="number"] {
 	margin-block-end: 0;
 }
 
+/* dark mode */
 @media (prefers-color-scheme: dark) {
 	:root {
 		--border: 1px solid rgb(79, 87, 91);
