@@ -483,7 +483,9 @@
 		event.preventDefault();
 		history.pushState({}, "", window.location.pathname);
 		reset_form();
+		should_update = false;
 		update_results();
+		should_update = true;
 	});
 
 	/* handle form submission */
