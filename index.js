@@ -464,6 +464,8 @@
 		for (let control of search_form.elements) {
 			if (control.dataset.default) {
 				control.value = control.dataset.default;
+			} else if (control.type === "text") {
+				control.value = "";
 			}
 		}
 
@@ -606,6 +608,7 @@
 	// update results if form is submitted
 	search_form.addEventListener("submit", function (event) {
 		event.preventDefault();
+
 		if (event.target.reportValidity()) {
 			reset_page();
 			update_results();
@@ -615,10 +618,6 @@
 	// update results when page changes
 	for (let page_el of page_els) {
 		page_el.addEventListener("change", function (event) {
-			if (!page_el.reportValidity()) {
-				return;
-			}
-
 			page = parseInt(event.target.value, 10);
 
 			for (let page_el2 of page_els) {
@@ -636,8 +635,8 @@
 	// update results when dropdowns are changed
 	for (let control of search_form.elements) {
 		if (control.type !== "submit") {
-			control.addEventListener("change", function () {
-				if (should_update) {
+			control.addEventListener("change", function (event) {
+				if (event.target.form.reportValidity() && should_update) {
 					reset_page();
 					update_results();
 				}

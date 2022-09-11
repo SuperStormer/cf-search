@@ -9,12 +9,21 @@ select,
 button {
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
+
 body {
 	padding: 15px;
 }
 #content {
 	display: flex;
 	width: 100%;
+}
+
+label {
+	font-size: 0.9rem;
+}
+
+input[type="number"] {
+	width: 5.5ch;
 }
 /* search form */
 #search-form {
@@ -26,12 +35,11 @@ body {
 	padding: 10px;
 	width: fit-content;
 }
-label {
-	font-size: 0.9rem;
+
+#options > * {
+	margin-bottom: 5px;
 }
-input[type="number"] {
-	width: 5.5ch;
-}
+
 /* sidebar */
 #sidebar {
 	margin-top: 1.5em;
