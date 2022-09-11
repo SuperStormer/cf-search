@@ -215,7 +215,7 @@
 				// handle filtering
 				let params = new URLSearchParams(window.location.search);
 				let [include, exclude] = get_active_filters();
-				console.log(get_active_filters());
+
 				params.set("filtersInclude", include.join(","));
 				params.set("filtersExclude", exclude.join(","));
 				history.pushState({}, "", "?" + params);
@@ -485,7 +485,13 @@
 		let params = new URLSearchParams(new FormData(search_form));
 
 		if (should_update) {
-			history.pushState({}, "", "?" + params.toString());
+			let params2 = new URLSearchParams(params);
+
+			let [include, exclude] = get_active_filters();
+			params2.set("filtersInclude", include.join(","));
+			params2.set("filtersExclude", exclude.join(","));
+
+			history.pushState({}, "", "?" + params2.toString());
 		}
 
 		params.append("gameId", GAME_ID);
