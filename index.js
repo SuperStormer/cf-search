@@ -462,8 +462,9 @@
 	/* reset form*/
 	function reset_form() {
 		for (let control of search_form.elements) {
-			if (control.dataset.default) {
+			if (control.dataset.default !== undefined) {
 				control.value = control.dataset.default;
+				console.log(control.value);
 			} else if (control.type === "text") {
 				control.value = "";
 			}
