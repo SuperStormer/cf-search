@@ -37,8 +37,12 @@
 
 	let search_results;
 	let page = 0;
-	// avoid triggering populate_results when you trigger change event programmatically (in order to populate dropdowns)
+	// avoid triggering update_results when you trigger change event programmatically
+	// (in order to populate dropdowns for prefill and defai;t)
 	let should_update = false;
+	// prevent double update_results with an AbortController
+	let current_ac = null;
+	let current_updating_event = "";
 
 	/* utility functions */
 
@@ -130,7 +134,7 @@
 		});
 	}
 
-	async function cf_api(endpoint, params) {
+	async function cf_api(endpoint, params, additional_args) {
 		if (typeof params === "object" && !(params instanceof URLSearchParams)) {
 			params = new URLSearchParams(params);
 		} else if (params == undefined) {
@@ -143,6 +147,7 @@
 
 		return fetch("https://api.curseforge.com/" + endpoint + "?" + params, {
 			headers: { "x-api-key": API_KEY, accept: "application/json" },
+			...additional_args,
 		})
 			.then((resp) => resp.json())
 			.then((json) => json.data);
@@ -392,6 +397,7 @@
 
 	/* prefill forms based on query params*/
 	function prefill_forms() {
+		should_update = false;
 		let params = new URLSearchParams(window.location.search);
 
 		// prefill search form
@@ -429,6 +435,7 @@
 				}
 			}
 		}
+		should_update = true;
 	}
 
 	prefill_forms();
@@ -436,9 +443,8 @@
 	// back + forward history buttons
 	window.addEventListener("popstate", function () {
 		reset_form();
-		should_update = false;
 		prefill_forms();
-		should_update = true;
+		update_results("popstate");
 	});
 
 	/* override step validation for page size in search form*/
@@ -455,7 +461,7 @@
 		}
 		event.preventDefault();
 		reset_page();
-		update_results();
+		update_results("control_change");
 	});
 	/* reset page numbering when query changes*/
 	function reset_page() {
@@ -488,24 +494,31 @@
 		event.preventDefault();
 		history.pushState({}, "", window.location.pathname);
 		reset_form();
-		should_update = false;
-		update_results();
-		should_update = true;
+		update_results("reset");
 	});
 
 	/* handle form submission */
-	async function update_results() {
+	async function update_results(event_name) {
+		if (current_ac !== null) {
+			current_ac.abort();
+		}
+		let ac = new AbortController();
+		current_ac = ac;
+		current_updating_event = event_name;
+
 		let params = new URLSearchParams(new FormData(search_form));
 
-		if (should_update) {
+		// update query params if not already set
+		if (!["default", "reset", "popstate"].includes(current_updating_event)) {
 			let params2 = new URLSearchParams(params);
 
 			// don't overwrite filters query params
 			let [include, exclude] = get_active_filters();
 			params2.set("filtersInclude", include.join(","));
 			params2.set("filtersExclude", exclude.join(","));
-
-			history.pushState({}, "", "?" + params2.toString());
+			if (window.location.search !== "?" + params2.toString()) {
+				history.pushState({}, "", "?" + params2.toString());
+			}
 		}
 
 		params.append("gameId", GAME_ID);
@@ -535,20 +548,28 @@
 			params2.set("index", index);
 			params2.set("pageSize", real_page_size);
 
-			queries.push(cf_api("/v1/mods/search", params2));
+			queries.push(cf_api("/v1/mods/search", params2, { signal: ac.signal }));
 		}
+		try {
+			// await each query sequentially to ensure result elements are properly ordered
+			let query_results = [];
+			for (let query of queries) {
+				let query_result = await query;
+				console.log(query_result);
+				populate_results(query_result);
+				query_results.push(query_result);
+			}
+			search_results = query_results.flat();
 
-		// await each query sequentially to ensure result elements are properly ordered
-		let query_results = [];
-		for (let query of queries) {
-			let query_result = await query;
-			console.log(query_result);
-			populate_results(query_result);
-			query_results.push(query_result);
+			loading_indicator.hidden = true;
+
+			current_ac = null;
+			current_updating_event = null;
+		} catch (e) {
+			if (e.name !== "AbortError") {
+				throw e;
+			}
 		}
-		search_results = query_results.flat();
-
-		loading_indicator.hidden = true;
 	}
 
 	function populate_results(results) {
@@ -617,8 +638,10 @@
 	search_form.addEventListener("submit", function (event) {
 		event.preventDefault();
 
-		reset_page();
-		update_results();
+		if (current_updating_event !== "control_change") {
+			reset_page();
+			update_results("form_submit");
+		}
 	});
 
 	// update results when page changes
@@ -634,7 +657,7 @@
 			params.set("page", page);
 			history.pushState({}, "", "?" + params);
 
-			update_results();
+			update_results("page_change");
 		});
 	}
 
@@ -644,14 +667,14 @@
 			control.addEventListener("change", function (event) {
 				if (event.target.form.reportValidity() && should_update) {
 					reset_page();
-					update_results();
+					update_results("control_change");
 				}
 			});
 		}
 	}
 
 	// fetch default results
-	update_results();
+	update_results("default");
 
 	// allow "change" events to call update_results
 	should_update = true;
