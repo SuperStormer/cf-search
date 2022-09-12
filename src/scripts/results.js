@@ -112,10 +112,7 @@ export function populate_results(results_el, filters_el, results, show_ids) {
 		updated.textContent = `Updated ${new Date(result.dateModified).toLocaleDateString()}`;
 		let created = document.createElement("span");
 		created.textContent = `Created ${new Date(result.dateCreated).toLocaleDateString()}`;
-		let id = document.createElement("span");
-		id.className = "project-id";
-		id.textContent = `Project ID: ${result.id}`;
-		secondary.append(downloads, updated, created, id);
+		secondary.append(downloads, updated, created);
 
 		// summary
 		let summary = document.createElement("p");
@@ -147,7 +144,11 @@ export function populate_results(results_el, filters_el, results, show_ids) {
 		}
 		logo.alt = "";
 
-		li.append(logo, categories, title, secondary, summary);
+		let id = document.createElement("span");
+		id.className = "project-id";
+		id.textContent = `Project ID: ${result.id}`;
+
+		li.append(logo, categories, id, title, secondary, summary);
 		fragment.append(li);
 	}
 	results_el.append(fragment);

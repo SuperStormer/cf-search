@@ -95,6 +95,8 @@ input[type="number"] {
 }
 
 #results .project-id {
+	float: right;
+	clear: right;
 	display: none;
 }
 
@@ -138,7 +140,8 @@ input[type="number"] {
 	margin-bottom: 5px;
 }
 
-.result-secondary {
+.result-secondary,
+.project-id {
 	font-size: 0.9rem;
 	color: #696969;
 }
