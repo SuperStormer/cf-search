@@ -94,13 +94,13 @@ input[type="number"] {
 	max-width: 850px;
 }
 
-#results .project-id {
+.project-id {
 	float: right;
 	clear: right;
 	display: none;
 }
 
-#results.show-ids .project-id {
+.show-ids .project-id {
 	display: inline;
 }
 
@@ -146,6 +146,15 @@ input[type="number"] {
 	color: #696969;
 }
 
+.download-button {
+	float: right;
+	clear: right;
+	margin: 5px 0 5px 0;
+}
+.download-button > button {
+	cursor: pointer;
+}
+
 .result-categories {
 	float: right;
 }
@@ -184,7 +193,8 @@ input[type="number"] {
 		background-color: #24282a;
 		color: rgb(250, 250, 250);
 	}
-	.result-secondary {
+	.result-secondary,
+	.project-id {
 		color: rgb(190, 181, 168);
 	}
 	a {
@@ -195,8 +205,18 @@ input[type="number"] {
 	}
 }
 
+/* small screens */
 @media (max-width: 768px) {
 	#notice {
 		width: 25ch;
+	}
+	#results {
+		max-width: 100%;
+	}
+}
+
+@media (max-width: 600px) {
+	.result-secondary > span:not(:first-child) {
+		display: none;
 	}
 }
