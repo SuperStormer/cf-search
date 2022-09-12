@@ -19,8 +19,7 @@ export async function update_results(
 	if (current_ac !== null) {
 		current_ac.abort();
 	}
-	let ac = new AbortController();
-	current_ac = ac;
+	current_ac = new AbortController();
 	current_updating_event = event_name;
 
 	let params = new URLSearchParams(new FormData(search_form));
@@ -31,8 +30,8 @@ export async function update_results(
 
 		// don't overwrite filters query params
 		let [include, exclude] = get_active_filters(filters_el);
-		params2.set("filtersInclude", include.join(","));
-		params2.set("filtersExclude", exclude.join(","));
+		params2.set("filtersInclude", include.join(" "));
+		params2.set("filtersExclude", exclude.join(" "));
 		if (window.location.search !== "?" + params2.toString()) {
 			history.pushState({}, "", "?" + params2.toString());
 		}
@@ -65,7 +64,7 @@ export async function update_results(
 			params2.set("index", index);
 			params2.set("pageSize", real_page_size);
 
-			queries.push(cf_api("/v1/mods/search", params2, { signal: ac.signal }));
+			queries.push(cf_api("/v1/mods/search", params2, { signal: current_ac.signal }));
 		}
 		// await each query sequentially to ensure result elements are properly ordered
 		let query_results = [];

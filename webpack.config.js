@@ -7,7 +7,15 @@ module.exports = {
 	devtool: PROD ? "source-map" : "eval-source-map",
 	optimization: {
 		minimize: PROD,
-		minimizer: [new TerserPlugin()],
+		minimizer: [
+			new TerserPlugin({
+				terserOptions: {
+					compress: {
+						drop_console: true,
+					},
+				},
+			}),
+		],
 	},
 	output: {
 		filename: "index.js",

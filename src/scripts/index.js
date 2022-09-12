@@ -4,7 +4,6 @@ import { populate_dropdown, fetch_dropdown_values } from "./dropdowns";
 import {
 	current_updating_event,
 	populate_results_delayed,
-	populate_results as _populate_results,
 	update_results as _update_results,
 } from "./results";
 import { populate_filters as _populate_filters } from "./filters";
@@ -32,7 +31,6 @@ import { populate_filters as _populate_filters } from "./filters";
 		filters_el,
 		loading_indicator
 	);
-	const populate_results = _populate_results.bind(_populate_results, results_el, filters_el);
 	const populate_filters = _populate_filters.bind(_populate_filters, filters_el);
 
 	let page = 0;
@@ -103,6 +101,8 @@ import { populate_filters as _populate_filters } from "./filters";
 	populate_dropdown(sub_version_el, []);
 
 	version_el.addEventListener("change", function () {
+		disable_modloader();
+
 		let val = version_el.value;
 
 		// reset subvers dropdown if version was deselected
@@ -118,8 +118,6 @@ import { populate_filters as _populate_filters } from "./filters";
 			sub_version_el,
 			subvers.map((x) => [x, x])
 		);
-
-		disable_modloader();
 	});
 
 	// sort field and order
@@ -142,13 +140,13 @@ import { populate_filters as _populate_filters } from "./filters";
 		// prefill page selector
 		if (params.has("page")) {
 			for (let page_el of page_els) {
-				page_el.value = params.get("page");
+				page_el.value = params.get("page") + 1;
 			}
 		}
 
 		// prefill visual filters
 		if (params.has("filtersInclude")) {
-			let filters = params.get("filtersInclude").split(",");
+			let filters = params.get("filtersInclude").split(" ");
 			for (let control of filters_el.elements) {
 				if (filters.includes(control.value)) {
 					control.checked = true;
@@ -157,7 +155,7 @@ import { populate_filters as _populate_filters } from "./filters";
 			}
 		}
 		if (params.has("filtersExclude")) {
-			let filters = params.get("filtersExclude").split(",");
+			let filters = params.get("filtersExclude").split(" ");
 			for (let control of filters_el.elements) {
 				if (filters.includes(control.value)) {
 					control.indeterminate = true;
@@ -198,7 +196,7 @@ import { populate_filters as _populate_filters } from "./filters";
 	function reset_page() {
 		page = 0;
 		for (let el of page_els) {
-			el.value = 0;
+			el.value = 1;
 		}
 	}
 
@@ -216,6 +214,10 @@ import { populate_filters as _populate_filters } from "./filters";
 			control.dataset.value = "off";
 			control.checked = false;
 			control.indeterminate = false;
+		}
+
+		for (let page_el of page_els) {
+			page_el.value = 1;
 		}
 
 		disable_modloader();
@@ -243,10 +245,14 @@ import { populate_filters as _populate_filters } from "./filters";
 	// update results when page changes
 	for (let page_el of page_els) {
 		page_el.addEventListener("change", function (event) {
-			page = Number.parseInt(event.target.value, 10);
+			if (!page_el.reportValidity()) {
+				return;
+			}
+
+			page = Number.parseInt(event.target.value, 10) - 1;
 
 			for (let page_el2 of page_els) {
-				page_el2.value = page;
+				page_el2.value = page + 1;
 			}
 
 			let params = new URLSearchParams(window.location.search);

@@ -37,8 +37,8 @@ export function populate_filters(filters_el, categories, checked_callback) {
 			let params = new URLSearchParams(window.location.search);
 			let [include, exclude] = get_active_filters(filters_el);
 
-			params.set("filtersInclude", include.join(","));
-			params.set("filtersExclude", exclude.join(","));
+			params.set("filtersInclude", include.join(" "));
+			params.set("filtersExclude", exclude.join(" "));
 			history.pushState({}, "", "?" + params);
 
 			checked_callback();
