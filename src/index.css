@@ -25,18 +25,7 @@ label {
 input[type="number"] {
 	width: 5.5ch;
 }
-#filters > label {
-	padding-top: 1.5px;
-	padding-bottom: 1.5px;
-}
 
-input[type="checkbox"] {
-	vertical-align: middle;
-	margin: 0px 7px 0px 3px;
-}
-input[type="checkbox"] + span {
-	vertical-align: middle;
-}
 /* search form */
 #search-form {
 	display: flex;
@@ -68,6 +57,15 @@ input[type="checkbox"] + span {
 #filters {
 	display: flex;
 	flex-direction: column;
+}
+
+#filters > label,
+#show-id-label {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 5px;
+	margin-top: 2px;
 }
 
 #notice {

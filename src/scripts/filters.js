@@ -44,9 +44,7 @@ export function populate_filters(filters_el, categories, checked_callback) {
 			checked_callback();
 		});
 
-		let label = document.createElement("span");
-		label.textContent = category;
-
+		let label = document.createTextNode(category);
 		el.append(checkbox, label);
 		fragment.append(el);
 	}
