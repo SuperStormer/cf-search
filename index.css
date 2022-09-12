@@ -25,6 +25,19 @@ label {
 input[type="number"] {
 	width: 5.5ch;
 }
+#filters > label {
+	padding-top: 1.5px;
+	padding-bottom: 1.5px;
+}
+
+input[type="checkbox"] {
+	vertical-align: middle;
+	margin-top: 0;
+	margin-bottom: 0;
+}
+input[type="checkbox"] + span {
+	vertical-align: middle;
+}
 /* search form */
 #search-form {
 	display: flex;
@@ -42,6 +55,9 @@ input[type="number"] {
 
 /* sidebar */
 #sidebar {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
 	margin-top: 1.5em;
 	margin-right: 1.5em;
 	padding: 10px;
@@ -59,12 +75,15 @@ input[type="number"] {
 	font-style: italic;
 	font-size: 0.8em;
 	width: 40ch;
-	padding: 5px;
 }
 
 #source {
 	font-size: 0.8em;
-	padding: 5px;
+}
+
+#notice,
+#source {
+	margin-left: 5px;
 }
 /* results */
 #results-container {
@@ -76,6 +95,14 @@ input[type="number"] {
 	margin-block-start: 10px;
 	padding-inline-start: 0;
 	max-width: 850px;
+}
+
+#results .project-id {
+	display: none;
+}
+
+#results.show-ids .project-id {
+	display: inline;
 }
 
 #loading-indicator {
