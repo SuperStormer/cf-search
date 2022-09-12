@@ -1,5 +1,5 @@
 {
-	"extends": ["eslint:recommended"],
+	"extends": ["eslint:recommended", "plugin:import/recommended", "plugin:sonarjs/recommended"],
 	"env": {
 		"es2021": true,
 		"browser": true
@@ -9,9 +9,11 @@
 		"no-duplicate-case": "warn",
 		"no-lonely-if": "warn",
 		"no-redeclare": "warn",
-		"no-unused-vars": ["warn", { "varsIgnorePattern": "_" }]
+		"no-unused-vars": ["warn", { "varsIgnorePattern": "_" }],
+		"sonarjs/cognitive-complexity": "warn"
 	},
 	"parserOptions": {
-		"ecmaVersion": 11
+		"ecmaVersion": 11,
+		"sourceType": "module"
 	}
 }

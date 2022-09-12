@@ -20,6 +20,9 @@
 	"homepage": "https://github.com/SuperStormer/cf-search#readme",
 	"devDependencies": {
 		"clean-css-cli": "^5.6.1",
+		"eslint": "^8.23.0",
+		"eslint-plugin-import": "^2.26.0",
+		"eslint-plugin-sonarjs": "^0.15.0",
 		"html-minifier-terser": "^7.0.0",
 		"nodemon": "^2.0.19",
 		"terser-webpack-plugin": "^5.3.6",
