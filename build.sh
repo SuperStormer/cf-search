@@ -1,7 +1,9 @@
-#!/bin/bash
-set -e
-shopt -s extglob
+#!/bin/sh
+set -ex
 
 rm -rf dist && mkdir dist
 webpack
-cp -r src/!(scripts) dist
+
+cleancss -o dist/index.css --source-map src/index.css
+html-minifier-terser --conservative-collapse --collapse-whitespace src/index.html -o dist/index.html
+rsync -av --ignore-existing --exclude scripts --exclude index.css --exclude index.html src/ dist/
