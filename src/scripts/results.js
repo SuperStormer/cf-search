@@ -14,7 +14,8 @@ export async function update_results(
 	filters_el,
 	loading_indicator,
 	page,
-	event_name
+	event_name,
+	show_ids
 ) {
 	if (current_ac !== null) {
 		current_ac.abort();
@@ -71,7 +72,7 @@ export async function update_results(
 		for (let query of queries) {
 			let query_result = await query;
 			console.log(query_result);
-			populate_results(results_el, filters_el, query_result);
+			populate_results(results_el, filters_el, query_result, show_ids);
 			query_results.push(query_result);
 		}
 		search_results = query_results.flat();
@@ -87,7 +88,7 @@ export async function update_results(
 	}
 }
 
-export function populate_results(results_el, filters_el, results) {
+export function populate_results(results_el, filters_el, results, show_ids) {
 	let [include, exclude] = get_active_filters(filters_el);
 	results = filter_results(results, include, exclude);
 
@@ -111,7 +112,10 @@ export function populate_results(results_el, filters_el, results) {
 		updated.textContent = `Updated ${new Date(result.dateModified).toLocaleDateString()}`;
 		let created = document.createElement("span");
 		created.textContent = `Created ${new Date(result.dateCreated).toLocaleDateString()}`;
-		secondary.append(downloads, updated, created);
+		let id = document.createElement("span");
+		id.className = "project-id";
+		id.textContent = `Project ID: ${result.id}`;
+		secondary.append(downloads, updated, created, id);
 
 		// summary
 		let summary = document.createElement("p");
@@ -149,8 +153,8 @@ export function populate_results(results_el, filters_el, results) {
 	results_el.append(fragment);
 }
 
-export function populate_results_delayed(results_el, filters_el) {
+export function populate_results_delayed(results_el, filters_el, show_ids) {
 	results_el.innerHTML = "";
 	// setTimeout to avoid delay in checkbox visual update for large lists
-	setTimeout(() => populate_results(results_el, filters_el, search_results), 0);
+	setTimeout(() => populate_results(results_el, filters_el, search_results, show_ids), 0);
 }

@@ -23,14 +23,20 @@ import { populate_filters as _populate_filters } from "./filters";
 	const loading_indicator = by_id("loading-indicator");
 	const reset_button = by_id("reset");
 	const filters_el = by_id("filters");
+	const show_ids = by_id("show-ids");
 
-	const update_results = _update_results.bind(
-		_update_results,
-		results_el,
-		search_form,
-		filters_el,
-		loading_indicator
-	);
+	const update_results = (event_name) => {
+		console.log(show_ids.checked);
+		_update_results(
+			results_el,
+			search_form,
+			filters_el,
+			loading_indicator,
+			page,
+			event_name,
+			show_ids.checked
+		);
+	};
 	const populate_filters = _populate_filters.bind(_populate_filters, filters_el);
 
 	let page = 0;
@@ -54,7 +60,12 @@ import { populate_filters as _populate_filters } from "./filters";
 		populate_dropdown(categories_el, categories2);
 		populate_filters(
 			categories2,
-			populate_results_delayed.bind(populate_results_delayed, results_el, filters_el)
+			populate_results_delayed.bind(
+				populate_results_delayed,
+				results_el,
+				filters_el,
+				show_ids.checked
+			)
 		);
 	});
 
@@ -173,7 +184,17 @@ import { populate_filters as _populate_filters } from "./filters";
 	window.addEventListener("popstate", function () {
 		reset_form();
 		prefill_forms();
-		update_results(page, "popstate");
+		update_results("popstate");
+	});
+
+	/* "show project ids" checkbox*/
+	show_ids.checked = localStorage.getItem("show_ids") === "true";
+	if (show_ids.checked) {
+		results_el.classList.add("show-ids");
+	}
+	show_ids.addEventListener("change", function () {
+		localStorage.setItem("show_ids", show_ids.checked);
+		results_el.classList.toggle("show-ids");
 	});
 
 	/* override step validation for page size in search form*/
@@ -190,8 +211,9 @@ import { populate_filters as _populate_filters } from "./filters";
 		}
 		event.preventDefault();
 		reset_page();
-		update_results(page, "control_change");
+		update_results("control_change");
 	});
+
 	/* reset page numbering when query changes*/
 	function reset_page() {
 		page = 0;
@@ -227,7 +249,7 @@ import { populate_filters as _populate_filters } from "./filters";
 		event.preventDefault();
 		history.pushState({}, "", window.location.pathname);
 		reset_form();
-		update_results(page, "reset");
+		update_results("reset");
 	});
 
 	/* handle results updates */
@@ -238,7 +260,7 @@ import { populate_filters as _populate_filters } from "./filters";
 
 		if (current_updating_event !== "control_change") {
 			reset_page();
-			update_results(page, "form_submit");
+			update_results("form_submit");
 		}
 	});
 
@@ -259,7 +281,7 @@ import { populate_filters as _populate_filters } from "./filters";
 			params.set("page", page);
 			history.pushState({}, "", "?" + params);
 
-			update_results(page, "page_change");
+			update_results("page_change");
 		});
 	}
 
@@ -269,14 +291,14 @@ import { populate_filters as _populate_filters } from "./filters";
 			control.addEventListener("change", function (event) {
 				if (event.target.form.reportValidity() && should_update) {
 					reset_page();
-					update_results(page, "control_change");
+					update_results("control_change");
 				}
 			});
 		}
 	}
 
 	// fetch default results
-	update_results(page, "default");
+	update_results("default");
 
 	// allow "change" events to call update_results
 	should_update = true;
