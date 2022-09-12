@@ -26,16 +26,7 @@ import { populate_filters as _populate_filters } from "./filters";
 	const show_ids = by_id("show-ids");
 
 	const update_results = (event_name) => {
-		console.log(show_ids.checked);
-		_update_results(
-			results_el,
-			search_form,
-			filters_el,
-			loading_indicator,
-			page,
-			event_name,
-			show_ids.checked
-		);
+		_update_results(results_el, search_form, filters_el, loading_indicator, page, event_name);
 	};
 	const populate_filters = _populate_filters.bind(_populate_filters, filters_el);
 
@@ -58,15 +49,9 @@ import { populate_filters as _populate_filters } from "./filters";
 
 		let categories2 = categories[class_].map((category) => [category.name, category.id]);
 		populate_dropdown(categories_el, categories2);
-		populate_filters(
-			categories2,
-			populate_results_delayed.bind(
-				populate_results_delayed,
-				results_el,
-				filters_el,
-				show_ids.checked
-			)
-		);
+		populate_filters(categories2, () => {
+			populate_results_delayed(results_el, filters_el);
+		});
 	});
 
 	// classes

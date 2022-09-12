@@ -14,8 +14,7 @@ export async function update_results(
 	filters_el,
 	loading_indicator,
 	page,
-	event_name,
-	show_ids
+	event_name
 ) {
 	if (current_ac !== null) {
 		current_ac.abort();
@@ -72,7 +71,7 @@ export async function update_results(
 		for (let query of queries) {
 			let query_result = await query;
 			console.log(query_result);
-			populate_results(results_el, filters_el, query_result, show_ids);
+			populate_results(results_el, filters_el, query_result);
 			query_results.push(query_result);
 		}
 		search_results = query_results.flat();
@@ -88,9 +87,11 @@ export async function update_results(
 	}
 }
 
-export function populate_results(results_el, filters_el, results, show_ids) {
+export function populate_results(results_el, filters_el, results) {
 	let [include, exclude] = get_active_filters(filters_el);
 	results = filter_results(results, include, exclude);
+
+	let params = new URLSearchParams(window.location.search);
 
 	let fragment = document.createDocumentFragment();
 	for (let result of results) {
@@ -135,6 +136,45 @@ export function populate_results(results_el, filters_el, results, show_ids) {
 			el.append(img);
 			categories.append(el);
 		}
+		// project id
+		let id = document.createElement("span");
+		id.className = "project-id";
+		id.textContent = `Project ID: ${result.id}`;
+
+		// download button
+		let download_url;
+		let is_mod = params.get("classId") === "6";
+		let version = params.get("gameVersion");
+		if (
+			params.get("gameVersion") &&
+			params.get("gameVersionTypeId") &&
+			(!is_mod || (params.has("modLoaderType") && params.get("modLoaderType") !== "0"))
+		) {
+			let subver = Number.parseInt(params.get("gameVersionTypeId"), 10);
+			let modloader = Number.parseInt(params.get("modLoaderType"), 10);
+
+			// fabric didn't exist before 1.14, so a lot of the old files are untagged with mod loader
+			let is_old_forge = version < "1.14" && modloader === 1;
+
+			let file_id = result.latestFilesIndexes.find(
+				(file) =>
+					file.gameVersion === version &&
+					file.gameVersionTypeId === subver &&
+					(!is_mod ||
+						file.modLoader === modloader ||
+						(file.modLoader === null && is_old_forge))
+			).fileId;
+			download_url = `${result.links.websiteUrl}/download/${file_id}/file`;
+		} else {
+			download_url = `${result.links.websiteUrl}/files/all`;
+		}
+		let download = document.createElement("a");
+		download.className = "download-button";
+		download.href = download_url;
+		let download_button = document.createElement("button");
+		download_button.textContent = "Download";
+		// nesting an <button> within an <a> is technically invalid HTML5, but I don't care
+		download.append(download_button);
 
 		//logo
 		let logo = document.createElement("img");
@@ -144,18 +184,14 @@ export function populate_results(results_el, filters_el, results, show_ids) {
 		}
 		logo.alt = "";
 
-		let id = document.createElement("span");
-		id.className = "project-id";
-		id.textContent = `Project ID: ${result.id}`;
-
-		li.append(logo, categories, id, title, secondary, summary);
+		li.append(logo, categories, download, id, title, secondary, summary);
 		fragment.append(li);
 	}
 	results_el.append(fragment);
 }
 
-export function populate_results_delayed(results_el, filters_el, show_ids) {
+export function populate_results_delayed(results_el, filters_el) {
 	results_el.innerHTML = "";
 	// setTimeout to avoid delay in checkbox visual update for large lists
-	setTimeout(() => populate_results(results_el, filters_el, search_results, show_ids), 0);
+	setTimeout(() => populate_results(results_el, filters_el, search_results), 0);
 }
