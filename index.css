@@ -32,7 +32,7 @@ input[type="number"] {
 
 input[type="checkbox"] {
 	vertical-align: middle;
-	margin: 0px 3px 0px 3px;
+	margin: 0px 7px 0px 3px;
 }
 input[type="checkbox"] + span {
 	vertical-align: middle;
