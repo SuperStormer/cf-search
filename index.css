@@ -25,18 +25,7 @@ label {
 input[type="number"] {
 	width: 5.5ch;
 }
-#filters > label {
-	padding-top: 1.5px;
-	padding-bottom: 1.5px;
-}
 
-input[type="checkbox"] {
-	vertical-align: middle;
-	margin: 0px 7px 0px 3px;
-}
-input[type="checkbox"] + span {
-	vertical-align: middle;
-}
 /* search form */
 #search-form {
 	display: flex;
@@ -70,6 +59,15 @@ input[type="checkbox"] + span {
 	flex-direction: column;
 }
 
+#filters > label,
+#show-id-label {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 5px;
+	margin-top: 2px;
+}
+
 #notice {
 	font-style: italic;
 	font-size: 0.8em;
@@ -97,6 +95,8 @@ input[type="checkbox"] + span {
 }
 
 #results .project-id {
+	float: right;
+	clear: right;
 	display: none;
 }
 
@@ -140,7 +140,8 @@ input[type="checkbox"] + span {
 	margin-bottom: 5px;
 }
 
-.result-secondary {
+.result-secondary,
+.project-id {
 	font-size: 0.9rem;
 	color: #696969;
 }
