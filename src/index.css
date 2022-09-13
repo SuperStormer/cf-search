@@ -54,6 +54,15 @@ input[type="number"] {
 	border-radius: var(--border-radius);
 }
 
+#sidebar-header {
+	display: flex;
+	align-items: center;
+}
+#show-filters {
+	display: none;
+	margin-left: 15px;
+}
+
 #filters {
 	display: flex;
 	flex-direction: column;
@@ -206,7 +215,8 @@ input[type="number"] {
 }
 
 /* small screens */
-@media (max-width: 768px) {
+/* I set the query breakpoints semi-randomly, so it might break lol */
+@media (max-width: 1024px) {
 	#notice {
 		width: 25ch;
 	}
@@ -214,9 +224,35 @@ input[type="number"] {
 		max-width: 100%;
 	}
 }
-
-@media (max-width: 600px) {
-	.result-secondary > span:not(:first-child) {
+@media (max-width: 720px) {
+	#content {
+		flex-direction: column;
+	}
+	#show-filters {
+		display: inline-block;
+	}
+	#sidebar.show-filters > :is(#notice, #source) {
+		display: block;
+	}
+	#sidebar.show-filters > :is(#filters, #show-id-label) {
+		display: flex;
+	}
+	#sidebar > :not(:first-child) {
 		display: none;
+	}
+}
+/* TODO fix this awful hack */
+@media (max-width: 475px) {
+	.result {
+		position: relative;
+	}
+	.download-button {
+		position: absolute;
+		bottom: 0.75rem;
+		right: 0.75em;
+		margin: 0;
+	}
+	.result-summary {
+		width: calc(100% - 80px);
 	}
 }

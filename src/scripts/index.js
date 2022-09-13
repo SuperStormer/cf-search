@@ -24,6 +24,8 @@ import { populate_filters as _populate_filters } from "./filters";
 	const reset_button = by_id("reset");
 	const filters_el = by_id("filters");
 	const show_ids = by_id("show-ids");
+	const show_filters = by_id("show-filters");
+	const sidebar_el = by_id("sidebar");
 
 	const update_results = (event_name) => {
 		_update_results(results_el, search_form, filters_el, loading_indicator, page, event_name);
@@ -180,6 +182,15 @@ import { populate_filters as _populate_filters } from "./filters";
 	show_ids.addEventListener("change", function () {
 		localStorage.setItem("show_ids", show_ids.checked);
 		results_el.classList.toggle("show-ids");
+	});
+
+	/* show/hide visual filters for small screens */
+	show_filters.addEventListener("click", function () {
+		if (sidebar_el.classList.toggle("show-filters")) {
+			show_filters.textContent = "Hide";
+		} else {
+			show_filters.textContent = "Show";
+		}
 	});
 
 	/* override step validation for page size in search form*/

@@ -3,7 +3,6 @@
 	<head>
 		<meta charset="utf-8" />
 		<title>Curseforge Search</title>
-		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
 		<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
@@ -49,7 +48,9 @@
 		</form>
 		<div id="content">
 			<aside id="sidebar">
-				<div>Visual Filters</div>
+				<header id="sidebar-header">
+					<span>Visual Filters</span><button id="show-filters">Show</button>
+				</header>
 				<form id="filters"></form>
 				<div id="notice">
 					Note: these filters only hide results per page, so you may see few results
