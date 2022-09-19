@@ -1,4 +1,4 @@
-import { get_active_filters, filter_results } from "./filters";
+import { update_query_params, filter_results } from "./filters";
 import { GAME_ID } from "./consts";
 import { cf_api } from "./api";
 import { human_readable } from "./utils";
@@ -10,9 +10,9 @@ export let current_updating_event = "";
 
 export async function update_results(
 	results_el,
-	search_form,
-	filters_el,
 	loading_indicator,
+	form_data,
+	filters,
 	page,
 	event_name
 ) {
@@ -22,19 +22,11 @@ export async function update_results(
 	current_ac = new AbortController();
 	current_updating_event = event_name;
 
-	let params = new URLSearchParams(new FormData(search_form));
+	let params = new URLSearchParams(form_data);
 
 	// update query params if not already set
 	if (!["default", "reset", "popstate"].includes(current_updating_event)) {
-		let params2 = new URLSearchParams(params);
-
-		// don't overwrite filters query params
-		let [include, exclude] = get_active_filters(filters_el);
-		params2.set("filtersInclude", include.join(" "));
-		params2.set("filtersExclude", exclude.join(" "));
-		if (window.location.search !== "?" + params2.toString()) {
-			history.pushState({}, "", "?" + params2.toString());
-		}
+		update_query_params(params, filters);
 	}
 
 	params.append("gameId", GAME_ID);
@@ -71,7 +63,7 @@ export async function update_results(
 		for (let query of queries) {
 			let query_result = await query;
 			console.log(query_result);
-			populate_results(results_el, filters_el, query_result);
+			populate_results(results_el, filters, query_result);
 			query_results.push(query_result);
 		}
 		search_results = query_results.flat();
@@ -87,8 +79,8 @@ export async function update_results(
 	}
 }
 
-export function populate_results(results_el, filters_el, results) {
-	let [include, exclude] = get_active_filters(filters_el);
+export function populate_results(results_el, filters, results) {
+	let [include, exclude] = filters;
 	results = filter_results(results, include, exclude);
 
 	let params = new URLSearchParams(window.location.search);
@@ -136,41 +128,16 @@ export function populate_results(results_el, filters_el, results) {
 			el.append(img);
 			categories.append(el);
 		}
+
 		// project id
 		let id = document.createElement("span");
 		id.className = "project-id";
 		id.textContent = `Project ID: ${result.id}`;
 
 		// download button
-		let download_url;
-		let is_mod = params.get("classId") === "6";
-		let version = params.get("gameVersion");
-		if (
-			params.get("gameVersion") &&
-			params.get("gameVersionTypeId") &&
-			(!is_mod || (params.has("modLoaderType") && params.get("modLoaderType") !== "0"))
-		) {
-			let subver = Number.parseInt(params.get("gameVersionTypeId"), 10);
-			let modloader = Number.parseInt(params.get("modLoaderType"), 10);
-
-			// fabric didn't exist before 1.14, so a lot of the old files are untagged with mod loader
-			let is_old_forge = version < "1.14" && modloader === 1;
-
-			let file_id = result.latestFilesIndexes.find(
-				(file) =>
-					file.gameVersion === version &&
-					file.gameVersionTypeId === subver &&
-					(!is_mod ||
-						file.modLoader === modloader ||
-						(file.modLoader === null && is_old_forge))
-			).fileId;
-			download_url = `${result.links.websiteUrl}/download/${file_id}/file`;
-		} else {
-			download_url = `${result.links.websiteUrl}/files/all`;
-		}
 		let download = document.createElement("a");
 		download.className = "download-button";
-		download.href = download_url;
+		download.href = get_download_url(result, params);
 		let download_button = document.createElement("button");
 		download_button.textContent = "Download";
 		// nesting an <button> within an <a> is technically invalid HTML5, but I don't care
@@ -190,8 +157,38 @@ export function populate_results(results_el, filters_el, results) {
 	results_el.append(fragment);
 }
 
-export function populate_results_delayed(results_el, filters_el) {
+function get_download_url(result, params) {
+	let is_mod = params.get("classId") === "6";
+	let version = params.get("gameVersion");
+
+	// handle non-mods, and mods where version, subver and mod-loader are all set (otherwise file to download is ambigious)
+	if (
+		params.get("gameVersion") &&
+		params.get("gameVersionTypeId") &&
+		(!is_mod || (params.has("modLoaderType") && params.get("modLoaderType") !== "0"))
+	) {
+		let subver = Number.parseInt(params.get("gameVersionTypeId"), 10);
+		let modloader = Number.parseInt(params.get("modLoaderType"), 10);
+
+		// fabric didn't exist before 1.14, so a lot of the old files are untagged with mod loader
+		let is_old_forge = version < "1.14" && modloader === 1;
+
+		let file_id = result.latestFilesIndexes.find(
+			(file) =>
+				file.gameVersion === version &&
+				file.gameVersionTypeId === subver &&
+				(!is_mod ||
+					file.modLoader === modloader ||
+					(file.modLoader === null && is_old_forge))
+		).fileId;
+		return `${result.links.websiteUrl}/download/${file_id}/file`;
+	} else {
+		return `${result.links.websiteUrl}/files/all`;
+	}
+}
+
+export function populate_results_delayed(results_el, filters) {
 	results_el.innerHTML = "";
 	// setTimeout to avoid delay in checkbox visual update for large lists
-	setTimeout(() => populate_results(results_el, filters_el, search_results), 0);
+	setTimeout(() => populate_results(results_el, filters, search_results), 0);
 }

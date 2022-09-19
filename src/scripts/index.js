@@ -6,7 +6,7 @@ import {
 	populate_results_delayed,
 	update_results as _update_results,
 } from "./results";
-import { populate_filters as _populate_filters } from "./filters";
+import { get_active_filters, populate_filters as _populate_filters } from "./filters";
 (async function () {
 	const by_id = document.getElementById.bind(document);
 	const search_form = by_id("search-form");
@@ -28,7 +28,14 @@ import { populate_filters as _populate_filters } from "./filters";
 	const sidebar_el = by_id("sidebar");
 
 	const update_results = (event_name) => {
-		_update_results(results_el, search_form, filters_el, loading_indicator, page, event_name);
+		_update_results(
+			results_el,
+			loading_indicator,
+			new FormData(search_form),
+			get_active_filters(filters_el),
+			page,
+			event_name
+		);
 	};
 	const populate_filters = _populate_filters.bind(_populate_filters, filters_el);
 
@@ -52,7 +59,7 @@ import { populate_filters as _populate_filters } from "./filters";
 		let categories2 = categories[class_].map((category) => [category.name, category.id]);
 		populate_dropdown(categories_el, categories2);
 		populate_filters(categories2, () => {
-			populate_results_delayed(results_el, filters_el);
+			populate_results_delayed(results_el, get_active_filters(filters_el));
 		});
 	});
 

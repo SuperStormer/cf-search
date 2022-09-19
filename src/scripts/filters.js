@@ -34,12 +34,7 @@ export function populate_filters(filters_el, categories, checked_callback) {
 			}
 
 			// handle filtering
-			let params = new URLSearchParams(window.location.search);
-			let [include, exclude] = get_active_filters(filters_el);
-
-			params.set("filtersInclude", include.join(" "));
-			params.set("filtersExclude", exclude.join(" "));
-			history.pushState({}, "", "?" + params);
+			update_query_params(window.location.search, get_active_filters(filters_el));
 
 			checked_callback();
 		});
@@ -74,4 +69,15 @@ export function filter_results(results, include, exclude) {
 	}
 
 	return results;
+}
+
+export function update_query_params(params, filters) {
+	let params2 = new URLSearchParams(params);
+	// don't overwrite filters query params
+	let [include, exclude] = filters;
+	params2.set("filtersInclude", include.join(" "));
+	params2.set("filtersExclude", exclude.join(" "));
+	if (window.location.search !== "?" + params2.toString()) {
+		history.pushState({}, "", "?" + params2.toString());
+	}
 }
