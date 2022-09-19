@@ -1,12 +1,16 @@
 /* I set the query breakpoints semi-randomly, so it might break lol */
 @media (max-width: 1024px) {
-	#notice {
-		width: 25ch;
-	}
 	#results {
 		max-width: 100%;
 	}
 }
+
+@media (min-width: 720px) and (max-width: 1024px) {
+	#notice {
+		width: 25ch;
+	}
+}
+
 @media (max-width: 720px) {
 	#content {
 		flex-direction: column;
@@ -17,15 +21,19 @@
 	#sidebar.show-filters > :is(#notice, #source) {
 		display: block;
 	}
-	#sidebar.show-filters > :is(#filters, #show-id-label) {
+	#sidebar.show-filters > :is(#filters, #version-filters, #show-id-label) {
 		display: flex;
 	}
 	#sidebar > :not(:first-child) {
 		display: none;
 	}
 }
+
 /* TODO fix this awful hack */
 @media (max-width: 475px) {
+	#notice {
+		width: 25ch;
+	}
 	.result {
 		position: relative;
 	}
