@@ -1,5 +1,5 @@
 /* handle visual filters */
-import { partition } from "./utils";
+import { natural_compare, partition } from "./utils";
 export function populate_filters(filters_el, categories, checked_callback) {
 	filters_el.innerHTML = "";
 	let fragment = document.createDocumentFragment();
@@ -34,8 +34,6 @@ export function populate_filters(filters_el, categories, checked_callback) {
 			}
 
 			// handle filtering
-			update_query_params(window.location.search, get_active_filters(filters_el));
-
 			checked_callback();
 		});
 
@@ -47,13 +45,21 @@ export function populate_filters(filters_el, categories, checked_callback) {
 	filters_el.append(fragment);
 }
 
-export function get_active_filters(filters_el) {
+export function get_active_filters(filters_el, version_filters_els) {
 	let filters = Array.from(filters_el.elements).filter((x) => x.checked);
 	let [include, exclude] = partition(filters, (x) => x.dataset.value === "include");
-	return [include.map((x) => parseInt(x.value, 10)), exclude.map((x) => parseInt(x.value, 10))];
+	[include, exclude] = [
+		include.map((x) => parseInt(x.value, 10)),
+		exclude.map((x) => parseInt(x.value, 10)),
+	];
+
+	let [min_ver, max_ver] = Array.from(version_filters_els).map((x) => x.value);
+
+	return [include, exclude, max_ver, min_ver];
 }
 
-export function filter_results(results, include, exclude) {
+export function filter_results(results, filters) {
+	let [include, exclude, max_ver, min_ver] = filters;
 	// handle includes
 	if (include.length > 0) {
 		results = results.filter((result) =>
@@ -68,15 +74,40 @@ export function filter_results(results, include, exclude) {
 		);
 	}
 
+	//handle max ver
+	if (max_ver.length > 0) {
+		if (max_ver.split(".").length === 2) {
+			// only major version provided (eg. "1.12"),
+			// so we add a string that will always compare greater than all of the subvers for that major ver
+			max_ver += "a";
+		}
+		results = results.filter((result) =>
+			result.latestFilesIndexes.every(
+				(file) => natural_compare(file.gameVersion, max_ver) <= 0
+			)
+		);
+	}
+
+	//handle min ver
+	if (min_ver.length > 0) {
+		results = results.filter((result) =>
+			result.latestFilesIndexes.every(
+				(file) => natural_compare(file.gameVersion, min_ver) >= 0
+			)
+		);
+	}
+
 	return results;
 }
 
 export function update_query_params(params, filters) {
 	let params2 = new URLSearchParams(params);
 	// don't overwrite filters query params
-	let [include, exclude] = filters;
+	let [include, exclude, max_ver, min_ver] = filters;
 	params2.set("filtersInclude", include.join(" "));
 	params2.set("filtersExclude", exclude.join(" "));
+	params2.set("maxVer", max_ver);
+	params2.set("minVer", min_ver);
 	if (window.location.search !== "?" + params2.toString()) {
 		history.pushState({}, "", "?" + params2.toString());
 	}

@@ -1,4 +1,4 @@
-import { natural_sort, group_by, format_categories, sort_vers } from "./utils";
+import { sort_classes, group_by, format_categories, sort_vers } from "./utils";
 import { GAME_ID } from "./consts";
 import { cf_api } from "./api";
 
@@ -39,7 +39,7 @@ async function fetch_categories() {
 	let categories = await cf_api("/v1/categories", { gameId: GAME_ID });
 	categories = group_by(categories, "classId");
 
-	let classes = natural_sort(categories[undefined]);
+	let classes = sort_classes(categories[undefined]);
 	delete categories[undefined];
 
 	// ignore bukkit plugins, customizations, addons

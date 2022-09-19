@@ -52,7 +52,7 @@
 					<span>Visual Filters</span><button id="show-filters">Show</button>
 				</header>
 				<form id="filters"></form>
-				<div id="version-filters">
+				<form id="version-filters">
 					<header>Version:</header>
 					<label>
 						Min:
@@ -60,7 +60,8 @@
 							id="min-version"
 							class="version-filter"
 							type="text"
-							pattern="1\\.[0-9]{,2}\\.[0-9]{,2}"
+							pattern="1\.[0-9]{1,2}(\.[0-9]{1,2})?"
+							title="Minecraft version (eg. 1.16.5)"
 						/>
 					</label>
 					<label>
@@ -69,10 +70,11 @@
 							id="max-version"
 							class="version-filter"
 							type="text"
-							pattern="1\\.[0-9]{,2}\\.[0-9]{,2}"
+							pattern="1\.[0-9]{1,2}(\.[0-9]{1,2})?"
+							title="Minecraft version (eg. 1.16.5)"
 						/>
 					</label>
-				</div>
+				</form>
 				<div id="notice">
 					Note: these filters only hide results per page, so you may see few results
 					depending on the filters you select. If this occurs, try increasing the page

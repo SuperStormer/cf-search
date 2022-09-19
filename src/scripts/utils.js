@@ -26,8 +26,12 @@ export function human_readable(number) {
 	}
 }
 
-export function natural_sort(array) {
-	return array.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+export function natural_compare(a, b) {
+	return a.localeCompare(b, "en", { numeric: true });
+}
+
+export function sort_classes(array) {
+	return array.sort((a, b) => natural_compare(a.name, b.name));
 }
 
 export function format_categories(array, class_id) {
@@ -35,11 +39,11 @@ export function format_categories(array, class_id) {
 	let top_level = subcategories[class_id];
 	delete subcategories[class_id];
 
-	top_level.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+	top_level.sort((a, b) => natural_compare(a.name, b.name));
 
 	for (let [id, subcategory] of Object.entries(subcategories)) {
 		id = parseInt(id, 10);
-		subcategory.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+		subcategory.sort((a, b) => natural_compare(a.name, b.name));
 		subcategory.forEach((x) => {
 			x.name = " └ " + x.name;
 		});
@@ -65,14 +69,14 @@ export function sort_vers(versions) {
 						return -1;
 					}
 
-					return -a.localeCompare(b, undefined, { numeric: true });
+					return -natural_compare(a, b);
 				}
 				return -1;
 			}
 			if (b.startsWith("Minecraft")) {
 				return 1;
 			}
-			return a.localeCompare(b, undefined, { numeric: true });
+			return natural_compare(a, b);
 		});
 }
 
@@ -83,6 +87,6 @@ export function sort_subvers(subvers) {
 		} else if (b.endsWith("Snapshot")) {
 			return -1;
 		}
-		return -a.localeCompare(b, undefined, { numeric: true });
+		return -natural_compare(a, b);
 	});
 }

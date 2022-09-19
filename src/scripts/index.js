@@ -6,9 +6,14 @@ import {
 	populate_results_delayed,
 	update_results as _update_results,
 } from "./results";
-import { get_active_filters, populate_filters as _populate_filters } from "./filters";
+import {
+	update_query_params,
+	get_active_filters,
+	populate_filters as _populate_filters,
+} from "./filters";
 (async function () {
 	const by_id = document.getElementById.bind(document);
+
 	const search_form = by_id("search-form");
 	const classes_el = by_id("classes");
 	const categories_el = by_id("categories");
@@ -17,22 +22,26 @@ import { get_active_filters, populate_filters as _populate_filters } from "./fil
 	const sub_version_el = by_id("sub-version");
 	const sort_field_el = by_id("sort-field");
 	const sort_order_el = by_id("sort-order");
-	const results_el = by_id("results");
 	const page_size_el = by_id("page-size");
+
+	const reset_button = by_id("reset");
+
 	const page_els = document.getElementsByClassName("page");
 	const loading_indicator = by_id("loading-indicator");
-	const reset_button = by_id("reset");
-	const filters_el = by_id("filters");
-	const show_ids = by_id("show-ids");
-	const show_filters = by_id("show-filters");
+	const results_el = by_id("results");
+
 	const sidebar_el = by_id("sidebar");
+	const filters_el = by_id("filters");
+	const version_filters_els = document.getElementsByClassName("version-filter");
+	const show_filters = by_id("show-filters");
+	const show_ids = by_id("show-ids");
 
 	const update_results = (event_name) => {
 		_update_results(
 			results_el,
 			loading_indicator,
 			new FormData(search_form),
-			get_active_filters(filters_el),
+			get_active_filters(filters_el, version_filters_els),
 			page,
 			event_name
 		);
@@ -41,11 +50,10 @@ import { get_active_filters, populate_filters as _populate_filters } from "./fil
 
 	let page = 0;
 	// avoid triggering update_results when you trigger change event programmatically
-	// (in order to populate dropdowns for prefill and defai;t)
+	// (in order to populate dropdowns for prefill and default)
 	let should_update = false;
 
-	/* utility functions */
-
+	// fetch values for dropdowns
 	let [classes, categories, versions, sub_versions] = await fetch_dropdown_values();
 
 	// categories
@@ -55,12 +63,11 @@ import { get_active_filters, populate_filters as _populate_filters } from "./fil
 		update_modloader();
 
 		let class_ = classes_el.value;
-
 		let categories2 = categories[class_].map((category) => [category.name, category.id]);
+
 		populate_dropdown(categories_el, categories2);
-		populate_filters(categories2, () => {
-			populate_results_delayed(results_el, get_active_filters(filters_el));
-		});
+
+		populate_filters(categories2, update_result_filters);
 	});
 
 	// classes
@@ -169,12 +176,21 @@ import { get_active_filters, populate_filters as _populate_filters } from "./fil
 				}
 			}
 		}
+
+		// prefill version filters
+		if (params.has("minVer")) {
+			version_filters_els[0].value = params.get("minVer");
+		}
+		if (params.has("maxVer")) {
+			version_filters_els[1].value = params.get("maxVer");
+		}
+
 		should_update = true;
 	}
 
 	prefill_forms();
 
-	// back + forward history buttons
+	/* back + forward history buttons */
 	window.addEventListener("popstate", function () {
 		reset_form();
 		prefill_forms();
@@ -190,6 +206,24 @@ import { get_active_filters, populate_filters as _populate_filters } from "./fil
 		localStorage.setItem("show_ids", show_ids.checked);
 		results_el.classList.toggle("show-ids");
 	});
+
+	/* visual and version filters */
+	function update_result_filters() {
+		// handle filtering
+		let filters = get_active_filters(filters_el, version_filters_els);
+		update_query_params(window.location.search, filters);
+		populate_results_delayed(results_el, filters);
+	}
+
+	/* version filters */
+	for (let control of version_filters_els) {
+		control.addEventListener("change", function () {
+			if (!control.reportValidity()) {
+				return;
+			}
+			update_result_filters();
+		});
+	}
 
 	/* show/hide visual filters for small screens */
 	show_filters.addEventListener("click", function () {
@@ -239,6 +273,10 @@ import { get_active_filters, populate_filters as _populate_filters } from "./fil
 			control.dataset.value = "off";
 			control.checked = false;
 			control.indeterminate = false;
+		}
+
+		for (let control of version_filters_els) {
+			control.value = "";
 		}
 
 		for (let page_el of page_els) {

@@ -1,7 +1,7 @@
 import { update_query_params, filter_results } from "./filters";
 import { GAME_ID } from "./consts";
 import { cf_api } from "./api";
-import { human_readable } from "./utils";
+import { human_readable, natural_compare } from "./utils";
 
 let search_results = [];
 // prevent double update_results with an AbortController
@@ -80,8 +80,7 @@ export async function update_results(
 }
 
 export function populate_results(results_el, filters, results) {
-	let [include, exclude] = filters;
-	results = filter_results(results, include, exclude);
+	results = filter_results(results, filters);
 
 	let params = new URLSearchParams(window.location.search);
 
@@ -159,32 +158,77 @@ export function populate_results(results_el, filters, results) {
 
 function get_download_url(result, params) {
 	let is_mod = params.get("classId") === "6";
-	let version = params.get("gameVersion");
+	let is_modpack = params.get("classId") === "4471";
+	let subver = params.get("gameVersion");
+	let version = Number.parseInt(params.get("gameVersionTypeId"), 10);
+	let modloader = Number.parseInt(params.get("modLoaderType"), 10);
 
-	// handle non-mods, and mods where version, subver and mod-loader are all set (otherwise file to download is ambigious)
+	// handle mods where version, subver and mod-loader are all set
+	// otherwise file to download is ambigious (file for the wrong MC version will break)
 	if (
+		is_mod &&
 		params.get("gameVersion") &&
 		params.get("gameVersionTypeId") &&
-		(!is_mod || (params.has("modLoaderType") && params.get("modLoaderType") !== "0"))
+		params.has("modLoaderType") &&
+		params.get("modLoaderType") !== "0"
 	) {
-		let subver = Number.parseInt(params.get("gameVersionTypeId"), 10);
-		let modloader = Number.parseInt(params.get("modLoaderType"), 10);
-
 		// fabric didn't exist before 1.14, so a lot of the old files are untagged with mod loader
-		let is_old_forge = version < "1.14" && modloader === 1;
+		let is_old_forge = natural_compare(subver, "1.14") < 0 && modloader === 1;
 
-		let file_id = result.latestFilesIndexes.find(
-			(file) =>
-				file.gameVersion === version &&
-				file.gameVersionTypeId === subver &&
-				(!is_mod ||
-					file.modLoader === modloader ||
-					(file.modLoader === null && is_old_forge))
-		).fileId;
-		return `${result.links.websiteUrl}/download/${file_id}/file`;
-	} else {
-		return `${result.links.websiteUrl}/files/all`;
+		try {
+			let file_id = result.latestFilesIndexes.find(
+				(file) =>
+					file.gameVersionTypeId === version &&
+					file.gameVersion === subver &&
+					(file.modLoader === modloader || (file.modLoader === null && is_old_forge))
+			).fileId;
+			return `${result.links.websiteUrl}/download/${file_id}/file`;
+		} catch (e) {
+			if (e instanceof TypeError) {
+				console.log(`${result.name} has improperly tagged files`);
+			}
+			// fall through
+		}
+	} else if (is_modpack) {
+		// handle all modpacks
+		// if subver is unset, fallback to latest from the version
+		// if ver is unset, fallback to latest file from any MC version.
+		// This is safe, because downloading a pack for a random MC version *won't* cause conflicts,
+		// unlike mods, resourcepacks, or worlds where a file for the wrong MC version will break something.
+		try {
+			let file_id = result.latestFilesIndexes.find(
+				(file) =>
+					(Number.isNaN(version) || file.gameVersionTypeId === version) &&
+					(subver === "" || file.gameVersion === subver)
+			).fileId;
+			return `${result.links.websiteUrl}/download/${file_id}/file`;
+		} catch (e) {
+			if (e instanceof TypeError) {
+				console.log(`${result.name} has improperly tagged files`);
+			}
+			// fall through
+		}
+	} else if (
+		!is_mod &&
+		!is_modpack &&
+		params.get("gameVersion") &&
+		params.get("gameVersionTypeId")
+	) {
+		// handle resourcepacks and worlds
+		// only when version and subversion are both set (otherwise, causes conflicts)
+		try {
+			let file_id = result.latestFilesIndexes.find(
+				(file) => file.gameVersionTypeId === version && file.gameVersion === subver
+			).fileId;
+			return `${result.links.websiteUrl}/download/${file_id}/file`;
+		} catch (e) {
+			if (e instanceof TypeError) {
+				console.log(`${result.name} has improperly tagged files`);
+			}
+			// fall through
+		}
 	}
+	return `${result.links.websiteUrl}/files/all`;
 }
 
 export function populate_results_delayed(results_el, filters) {

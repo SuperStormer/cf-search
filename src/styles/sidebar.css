@@ -33,6 +33,22 @@
 	margin-top: 2px;
 }
 
+#version-filters {
+	display: flex;
+	align-items: stretch;
+	gap: 5px;
+}
+#version-filters > header {
+	font-size: 0.9rem;
+}
+#version-filters > * {
+	display: flex;
+	align-items: center;
+}
+.version-filter {
+	margin-left: 3px;
+	width: 8.5ch;
+}
 #notice {
 	font-style: italic;
 	font-size: 0.8em;
