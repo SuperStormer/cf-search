@@ -1,0 +1,13 @@
+#search-form {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	border: var(--border);
+	border-radius: var(--border-radius);
+	padding: 10px;
+	width: fit-content;
+}
+
+#options > * {
+	margin-bottom: 5px;
+}

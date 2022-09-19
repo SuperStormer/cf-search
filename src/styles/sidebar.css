@@ -1,0 +1,49 @@
+#sidebar {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	margin-top: 1.5em;
+	margin-right: 1.5em;
+	padding: 10px;
+	height: fit-content;
+	border: var(--border);
+	border-radius: var(--border-radius);
+}
+
+#sidebar-header {
+	display: flex;
+	align-items: center;
+}
+#show-filters {
+	display: none;
+	margin-left: 15px;
+}
+
+#filters {
+	display: flex;
+	flex-direction: column;
+}
+
+#filters > label,
+#show-id-label {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 5px;
+	margin-top: 2px;
+}
+
+#notice {
+	font-style: italic;
+	font-size: 0.8em;
+	width: 40ch;
+}
+
+#source {
+	font-size: 0.8em;
+}
+
+#notice,
+#source {
+	margin-left: 5px;
+}

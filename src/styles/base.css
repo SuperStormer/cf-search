@@ -1,0 +1,28 @@
+/* set some base styles */
+:root {
+	--border: 1px solid #b6b6b6;
+	--border-radius: 5px;
+}
+
+body,
+input,
+select,
+button {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+body {
+	padding: 15px;
+}
+#content {
+	display: flex;
+	width: 100%;
+}
+
+label {
+	font-size: 0.9rem;
+}
+
+input[type="number"] {
+	width: 5.5ch;
+}

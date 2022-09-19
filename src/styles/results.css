@@ -1,0 +1,92 @@
+#results-container {
+	flex-grow: 0.5;
+	margin-top: 1.5em;
+}
+
+#results {
+	margin-block-start: 10px;
+	padding-inline-start: 0;
+	max-width: 850px;
+}
+
+.project-id {
+	float: right;
+	clear: right;
+	display: none;
+}
+
+.show-ids .project-id {
+	display: inline;
+}
+
+#loading-indicator {
+	margin-left: 5px;
+}
+.result {
+	min-height: 4.1rem;
+	border: var(--border);
+	border-top: unset;
+	list-style-type: none;
+	padding: 0.75rem;
+}
+
+.result:first-of-type {
+	border-top: var(--border);
+	border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.result:last-of-type {
+	border-radius: 0 0 var(--border-radius) var(--border-radius);
+}
+
+.result-logo {
+	height: 4rem;
+	width: 4rem;
+	float: left;
+	margin-right: 15px;
+	margin-bottom: 1em;
+	object-fit: contain;
+}
+
+.result-title {
+	font-size: 1.2rem;
+	display: block;
+
+	margin-bottom: 5px;
+}
+
+.result-secondary,
+.project-id {
+	font-size: 0.9rem;
+	color: #696969;
+}
+
+.download-button {
+	float: right;
+	clear: right;
+	margin: 5px 0 5px 0;
+}
+.download-button > button {
+	cursor: pointer;
+}
+
+.result-categories {
+	float: right;
+}
+.result-categories,
+.result-secondary {
+	display: flex;
+	flex-direction: row;
+	gap: 10px;
+}
+
+.result-category-image {
+	height: 25px;
+	width: 25px;
+}
+
+.result-summary {
+	font-size: 0.9rem;
+	margin-block-start: 5px;
+	margin-block-end: 0;
+}

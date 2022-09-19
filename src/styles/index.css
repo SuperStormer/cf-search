@@ -1,0 +1,7 @@
+/* import everything in order */
+@import "./base.css";
+@import "./search_form.css";
+@import "./sidebar.css";
+@import "./results.css";
+@import "./dark_mode.css";
+@import "./small_screens.css";

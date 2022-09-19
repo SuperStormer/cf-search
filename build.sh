@@ -5,9 +5,10 @@ rm -rf dist && mkdir dist
 webpack
 
 if [ "$NODE_ENV" = "production" ]; then
-	cleancss -o dist/index.css --source-map src/index.css
+	cleancss -o dist/index.css --source-map src/styles/index.css
 	html-minifier-terser --conservative-collapse --collapse-whitespace src/index.html -o dist/index.html
-	rsync -av --ignore-existing --exclude scripts --exclude index.css --exclude index.html src/ dist/
+	rsync -av --ignore-existing --exclude scripts --exclude styles --exclude index.html src/ dist/
 else 
-	rsync -av  --ignore-existing --exclude scripts src/ dist/
+	cleancss -O0 -o dist/index.css src/styles/index.css
+	rsync -av  --ignore-existing --exclude scripts --exclude styles src/ dist/
 fi
