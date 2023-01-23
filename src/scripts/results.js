@@ -24,8 +24,8 @@ export async function update_results(
 
 	let params = new URLSearchParams(form_data);
 
-	// update query params if not already set
-	if (!["default", "reset", "popstate"].includes(current_updating_event)) {
+	// update query params only if search parameters were modified
+	if (current_updating_event == "control_change") {
 		update_query_params(params, filters);
 	}
 
