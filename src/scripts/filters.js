@@ -6,6 +6,7 @@ export function populate_filters(filters_el, categories, checked_callback) {
 
 	for (let [category, id] of categories) {
 		let el = document.createElement("label");
+		el.className = "checkbox-label";
 
 		let checkbox = document.createElement("input");
 		checkbox.type = "checkbox";

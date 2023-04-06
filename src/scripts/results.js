@@ -90,21 +90,34 @@ export function populate_results(results_el, filters, results) {
 		li.className = "result";
 
 		//title
-		let title = document.createElement("a");
+		let title = document.createElement("div");
 		title.className = "result-title";
-		title.href = result.links.websiteUrl;
-		title.textContent = result.name;
+
+		let title_link = document.createElement("a");
+		title_link.className = "result-title-link";
+		title_link.href = result.links.websiteUrl;
+		title_link.textContent = result.name;
+
+		let author = document.createElement("span");
+		author.className = "result-author";
+		let author_link = document.createElement("a");
+		author_link.className = "result-author-link";
+		author_link.href = result.authors[0].url;
+		author_link.textContent = result.authors[0].name;
+		author.append("by", author_link);
+
+		title.append(title_link, author);
 
 		// subtitle
-		let secondary = document.createElement("div");
-		secondary.className = "result-secondary";
+		let subtitle = document.createElement("div");
+		subtitle.className = "result-subtitle";
 		let downloads = document.createElement("span");
 		downloads.textContent = `${human_readable(result.downloadCount)} Downloads`;
 		let updated = document.createElement("span");
 		updated.textContent = `Updated ${new Date(result.dateModified).toLocaleDateString()}`;
 		let created = document.createElement("span");
 		created.textContent = `Created ${new Date(result.dateCreated).toLocaleDateString()}`;
-		secondary.append(downloads, updated, created);
+		subtitle.append(downloads, updated, created);
 
 		// summary
 		let summary = document.createElement("p");
@@ -130,7 +143,7 @@ export function populate_results(results_el, filters, results) {
 
 		// project id
 		let id = document.createElement("span");
-		id.className = "project-id";
+		id.className = "result-project-id";
 		id.textContent = `Project ID: ${result.id}`;
 
 		// download button
@@ -150,7 +163,7 @@ export function populate_results(results_el, filters, results) {
 		}
 		logo.alt = "";
 
-		li.append(logo, categories, download, id, title, secondary, summary);
+		li.append(logo, categories, download, id, title, subtitle, summary);
 		fragment.append(li);
 	}
 	results_el.append(fragment);

@@ -34,7 +34,8 @@ import {
 	const filters_el = by_id("filters");
 	const version_filters_els = document.getElementsByClassName("version-filter");
 	const show_filters = by_id("show-filters");
-	const show_ids = by_id("show-ids");
+	const show_id = by_id("show-id");
+	const show_author = by_id("show-author"); // eslint-disable-line sonarjs/no-duplicate-string
 
 	const update_results = (event_name) => {
 		_update_results(
@@ -198,13 +199,22 @@ import {
 	});
 
 	/* "show project ids" checkbox*/
-	show_ids.checked = localStorage.getItem("show_ids") === "true";
-	if (show_ids.checked) {
-		results_el.classList.add("show-ids");
+	show_id.checked = localStorage.getItem("show_id") === "true";
+	if (show_id.checked) {
+		results_el.classList.add("show-id");
 	}
-	show_ids.addEventListener("change", function () {
-		localStorage.setItem("show_ids", show_ids.checked);
-		results_el.classList.toggle("show-ids");
+	show_id.addEventListener("change", function () {
+		localStorage.setItem("show_id", show_id.checked);
+		results_el.classList.toggle("show-id");
+	});
+	/* "show authors" checkbox*/
+	show_author.checked = localStorage.getItem("show_author") === "true";
+	if (show_author.checked) {
+		results_el.classList.add("show-author");
+	}
+	show_author.addEventListener("change", function () {
+		localStorage.setItem("show_author", show_author.checked);
+		results_el.classList.toggle("show-author");
 	});
 
 	/* visual and version filters */
