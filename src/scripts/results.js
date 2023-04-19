@@ -95,7 +95,10 @@ export function populate_results(results_el, filters, results) {
 
 		let title_link = document.createElement("a");
 		title_link.className = "result-title-link";
-		title_link.href = result.links.websiteUrl;
+		// fix #8
+		let title_url = new URL(result.links.websiteUrl);
+		title_url.hostname = "www.curseforge.com";
+		title_link.href = title_url;
 		title_link.textContent = result.name;
 
 		let author = document.createElement("span");

@@ -11,6 +11,7 @@ import {
 	get_active_filters,
 	populate_filters as _populate_filters,
 } from "./filters";
+
 (async function () {
 	const by_id = document.getElementById.bind(document);
 
