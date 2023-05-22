@@ -95,21 +95,24 @@ export function populate_results(results_el, filters, results) {
 
 		let title_link = document.createElement("a");
 		title_link.className = "result-title-link";
-		// fix #8
+		// replace hostname to fix #8
 		let title_url = new URL(result.links.websiteUrl);
 		title_url.hostname = "www.curseforge.com";
 		title_link.href = title_url;
 		title_link.textContent = result.name;
+		title.append(title_link);
 
-		let author = document.createElement("span");
-		author.className = "result-author";
-		let author_link = document.createElement("a");
-		author_link.className = "result-author-link";
-		author_link.href = result.authors[0].url;
-		author_link.textContent = result.authors[0].name;
-		author.append("by", author_link);
-
-		title.append(title_link, author);
+		// check needed to fix #9
+		if(result.authors.length > 0) {
+			let author = document.createElement("span");
+			author.className = "result-author";
+			let author_link = document.createElement("a");
+			author_link.className = "result-author-link";
+			author_link.href = result.authors[0].url;
+			author_link.textContent = result.authors[0].name;
+			author.append("by", author_link);
+			title.append(author);
+		}
 
 		// subtitle
 		let subtitle = document.createElement("div");
