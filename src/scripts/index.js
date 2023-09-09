@@ -250,7 +250,7 @@ import {
 	page_size_el.addEventListener("invalid", function (event) {
 		let el = event.target;
 		for (let state in el.validity) {
-			if (state == "stepMismatch") {
+			if (state === "stepMismatch") {
 				continue;
 			}
 			if (el.validity[state]) {

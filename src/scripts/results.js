@@ -34,7 +34,7 @@ export async function update_results(
 	current_updating_event = event_name;
 
 	// update query params only if search parameters were modified
-	if (current_updating_event == "control_change") {
+	if (current_updating_event === "control_change") {
 		update_query_params(params, filters);
 	}
 

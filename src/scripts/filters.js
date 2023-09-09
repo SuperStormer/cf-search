@@ -64,7 +64,7 @@ export function filter_results(results, filters) {
 	// handle includes
 	if (include.length > 0) {
 		results = results.filter((result) =>
-			include.every((id) => result.categories.find((category) => category.id == id))
+			include.every((id) => result.categories.find((category) => category.id === id))
 		);
 	}
 
