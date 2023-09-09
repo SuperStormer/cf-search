@@ -40,7 +40,7 @@ export async function update_results(
 
 	params.append("gameId", GAME_ID);
 
-	// work-around for curseforge API being bad
+	// workaround for Curseforge API being bad
 	if (params.get("gameVersion") && params.get("modLoaderType") === "0") {
 		params.delete("modLoaderType");
 	}
@@ -51,7 +51,7 @@ export async function update_results(
 	search_results = [];
 	try {
 		// since CF API only lets us fetch 50 items at a time,
-		// this horrible code splits the desired pageSize into multiple requests
+		// we have to split the desired pageSize into multiple requests
 		let queries = [];
 		for (let offset = 0; offset < page_size; offset += 50) {
 			let real_page_size = Math.min(50, page_size - offset);
@@ -62,6 +62,12 @@ export async function update_results(
 
 			params2.set("index", index);
 			params2.set("pageSize", real_page_size);
+
+			// workaround for #10
+			// we do it here so it doesn't affect the modpack branch of get_download_url
+			if (params2.get("gameVersion")) {
+				params2.delete("gameVersionTypeId");
+			}
 
 			queries.push(cf_api("/v1/mods/search", params2, { signal: current_ac.signal }));
 		}
@@ -190,12 +196,11 @@ function get_download_url(result, params) {
 	let version = Number.parseInt(params.get("gameVersionTypeId"), 10);
 	let modloader = Number.parseInt(params.get("modLoaderType"), 10);
 
-	// handle mods where version, subver and mod-loader are all set
+	// handle mods where subver and mod loader are both set
 	// otherwise file to download is ambigious (file for the wrong MC version will break)
 	if (
 		is_mod &&
 		params.get("gameVersion") &&
-		params.get("gameVersionTypeId") &&
 		params.has("modLoaderType") &&
 		params.get("modLoaderType") !== "0"
 	) {
@@ -205,9 +210,8 @@ function get_download_url(result, params) {
 		try {
 			let file_id = result.latestFilesIndexes.find(
 				(file) =>
-					file.gameVersionTypeId === version &&
 					file.gameVersion === subver &&
-					(file.modLoader === modloader || (file.modLoader === null && is_old_forge))
+					(file.modLoader === modloader || (file.modLoader == null && is_old_forge))
 			).fileId;
 			return `${result.links.websiteUrl}/download/${file_id}/file`;
 		} catch (e) {
@@ -235,17 +239,12 @@ function get_download_url(result, params) {
 			}
 			// fall through
 		}
-	} else if (
-		!is_mod &&
-		!is_modpack &&
-		params.get("gameVersion") &&
-		params.get("gameVersionTypeId")
-	) {
+	} else if (!is_mod && !is_modpack && params.get("gameVersion")) {
 		// handle resourcepacks and worlds
-		// only when version and subversion are both set (otherwise, causes conflicts)
+		// only when subversion is set (otherwise, causes conflicts)
 		try {
 			let file_id = result.latestFilesIndexes.find(
-				(file) => file.gameVersionTypeId === version && file.gameVersion === subver
+				(file) => file.gameVersion === subver
 			).fileId;
 			return `${result.links.websiteUrl}/download/${file_id}/file`;
 		} catch (e) {
