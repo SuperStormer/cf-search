@@ -12,6 +12,7 @@ import {
 	populate_filters as _populate_filters,
 } from "./filters";
 
+// eslint-disable-next-line sonarjs/cognitive-complexity
 (async function () {
 	const by_id = document.getElementById.bind(document);
 
