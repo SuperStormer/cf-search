@@ -14,8 +14,8 @@
 		background-color: #24282a;
 		color: rgb(250, 250, 250);
 	}
-	.result-secondary,
-	.project-id {
+	.result-subtitle,
+	.result-project-id {
 		color: rgb(190, 181, 168);
 	}
 	a {

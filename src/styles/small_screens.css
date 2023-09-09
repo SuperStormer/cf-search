@@ -21,7 +21,7 @@
 	#sidebar.show-filters > :is(#notice, #source) {
 		display: block;
 	}
-	#sidebar.show-filters > :is(#filters, #version-filters, #show-id-label) {
+	#sidebar.show-filters > :is(#filters, #version-filters, .checkbox-label) {
 		display: flex;
 	}
 	#sidebar > :not(:first-child) {
@@ -29,11 +29,15 @@
 	}
 }
 
-/* TODO fix this awful hack */
 @media (max-width: 475px) {
 	#notice {
 		width: 25ch;
 	}
+	#results.show-author .result-title {
+		flex-direction: column;
+		align-items: start;
+	}
+	/* TODO fix this awful hack */
 	.result {
 		position: relative;
 	}

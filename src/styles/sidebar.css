@@ -24,8 +24,7 @@
 	flex-direction: column;
 }
 
-#filters > label,
-#show-id-label {
+.checkbox-label {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
@@ -39,25 +38,29 @@
 	align-items: stretch;
 	gap: 5px;
 }
+
 #version-filters > header {
 	font-size: 0.9rem;
 }
+
 #version-filters > * {
 	display: flex;
 	align-items: center;
 }
+
 .version-filter {
 	margin-left: 3px;
 	width: 8.5ch;
 }
+
 #notice {
 	font-style: italic;
-	font-size: 0.8em;
+	font-size: 0.8rem;
 	width: 40ch;
 }
 
 #source {
-	font-size: 0.8em;
+	font-size: 0.8rem;
 }
 
 #notice,

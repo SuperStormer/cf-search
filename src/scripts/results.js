@@ -33,8 +33,8 @@ export async function update_results(
 	current_ac = new AbortController();
 	current_updating_event = event_name;
 
-	// update query params if not already set
-	if (!["default", "reset", "popstate"].includes(current_updating_event)) {
+	// update query params only if search parameters were modified
+	if (current_updating_event == "control_change") {
 		update_query_params(params, filters);
 	}
 
@@ -98,21 +98,40 @@ export function populate_results(results_el, filters, results) {
 		li.className = "result";
 
 		//title
-		let title = document.createElement("a");
+		let title = document.createElement("div");
 		title.className = "result-title";
-		title.href = result.links.websiteUrl;
-		title.textContent = result.name;
+
+		let title_link = document.createElement("a");
+		title_link.className = "result-title-link";
+		// replace hostname to fix #8
+		let title_url = new URL(result.links.websiteUrl);
+		title_url.hostname = "www.curseforge.com";
+		title_link.href = title_url;
+		title_link.textContent = result.name;
+		title.append(title_link);
+
+		// check needed to fix #9
+		if (result.authors.length > 0) {
+			let author = document.createElement("span");
+			author.className = "result-author";
+			let author_link = document.createElement("a");
+			author_link.className = "result-author-link";
+			author_link.href = result.authors[0].url;
+			author_link.textContent = result.authors[0].name;
+			author.append("by", author_link);
+			title.append(author);
+		}
 
 		// subtitle
-		let secondary = document.createElement("div");
-		secondary.className = "result-secondary";
+		let subtitle = document.createElement("div");
+		subtitle.className = "result-subtitle";
 		let downloads = document.createElement("span");
 		downloads.textContent = `${human_readable(result.downloadCount)} Downloads`;
 		let updated = document.createElement("span");
 		updated.textContent = `Updated ${new Date(result.dateModified).toLocaleDateString()}`;
 		let created = document.createElement("span");
 		created.textContent = `Created ${new Date(result.dateCreated).toLocaleDateString()}`;
-		secondary.append(downloads, updated, created);
+		subtitle.append(downloads, updated, created);
 
 		// summary
 		let summary = document.createElement("p");
@@ -138,7 +157,7 @@ export function populate_results(results_el, filters, results) {
 
 		// project id
 		let id = document.createElement("span");
-		id.className = "project-id";
+		id.className = "result-project-id";
 		id.textContent = `Project ID: ${result.id}`;
 
 		// download button
@@ -158,7 +177,7 @@ export function populate_results(results_el, filters, results) {
 		}
 		logo.alt = "";
 
-		li.append(logo, categories, download, id, title, secondary, summary);
+		li.append(logo, categories, download, id, title, subtitle, summary);
 		fragment.append(li);
 	}
 	results_el.append(fragment);

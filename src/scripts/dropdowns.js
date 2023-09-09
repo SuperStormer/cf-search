@@ -42,13 +42,13 @@ async function fetch_categories() {
 	let classes = sort_classes(categories[undefined]);
 	delete categories[undefined];
 
-	// ignore bukkit plugins, customizations, addons
+	// ignore bukkit plugins, customizations, addons, shaders
 	// API doesn't work and I don't feel like figuring out why
-	let brokenClasses = [5, 4546, 4559, 4979];
-	for (let id of brokenClasses) {
+	let broken_classes = [5, 4546, 4559, 4979, 6552];
+	for (let id of broken_classes) {
 		delete categories[id];
 	}
-	classes = classes.filter((x) => !brokenClasses.includes(x.id));
+	classes = classes.filter((x) => !broken_classes.includes(x.id));
 
 	// format categories
 	for (let class_ in categories) {
@@ -57,8 +57,8 @@ async function fetch_categories() {
 
 	// ignore Fabric, FancyMenu, QoL, Vanilla+ tags
 	// these tags don't exist anymore, idk why they're still in the API
-	let brokenModCategories = new Set([5192, 4780, 5190, 5129]);
-	categories[6] = categories[6].filter((x) => !brokenModCategories.has(x.id));
+	let broken_mod_categories = [5192, 4780, 5190, 5129];
+	categories[6] = categories[6].filter((x) => !broken_mod_categories.includes(x.id));
 	return [classes, categories];
 }
 

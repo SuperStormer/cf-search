@@ -6,6 +6,7 @@ export function populate_filters(filters_el, categories, checked_callback) {
 
 	for (let [category, id] of categories) {
 		let el = document.createElement("label");
+		el.className = "checkbox-label";
 
 		let checkbox = document.createElement("input");
 		checkbox.type = "checkbox";
@@ -82,7 +83,7 @@ export function filter_results(results, filters) {
 			max_ver += "a";
 		}
 		results = results.filter((result) =>
-			result.latestFilesIndexes.every(
+			result.latestFilesIndexes.some(
 				(file) => natural_compare(file.gameVersion, max_ver) <= 0
 			)
 		);
@@ -91,7 +92,7 @@ export function filter_results(results, filters) {
 	//handle min ver
 	if (min_ver.length > 0) {
 		results = results.filter((result) =>
-			result.latestFilesIndexes.every(
+			result.latestFilesIndexes.some(
 				(file) => natural_compare(file.gameVersion, min_ver) >= 0
 			)
 		);
