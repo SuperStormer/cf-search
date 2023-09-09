@@ -57,26 +57,9 @@ export function format_categories(array, class_id) {
 
 export function sort_vers(versions) {
 	return versions
-		.filter((x) => x.name.startsWith("Minecraft")) //TODO figure out why other versions don't work and remove this temp fix
+		.filter((x) => x.name.startsWith("Minecraft") && x.name !== "Minecraft Beta") // TODO figure out why other versions don't work and remove this temp fix
 		.sort((a, b) => {
-			a = a.name;
-			b = b.name;
-			if (a.startsWith("Minecraft")) {
-				if (b.startsWith("Minecraft")) {
-					if (a === "Minecraft Beta") {
-						return 1;
-					} else if (b === "Minecraft Beta") {
-						return -1;
-					}
-
-					return -natural_compare(a, b);
-				}
-				return -1;
-			}
-			if (b.startsWith("Minecraft")) {
-				return 1;
-			}
-			return natural_compare(a, b);
+			return -natural_compare(a.name, b.name);
 		});
 }
 
