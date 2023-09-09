@@ -16,13 +16,22 @@ export async function update_results(
 	page,
 	event_name
 ) {
+	let params = new URLSearchParams(form_data);
+
+	// index + page_size <= 10,000 is a CF API limitation
+	let page_size = Number.parseInt(params.get("pageSize"), 10);
+	if (page_size * (page + 1) > 10000) {
+		alert("The desired page is too large for the Curseforge API");
+		return;
+	}
+
+	// cancel any updates in progress
 	if (current_ac !== null) {
 		current_ac.abort();
 	}
+
 	current_ac = new AbortController();
 	current_updating_event = event_name;
-
-	let params = new URLSearchParams(form_data);
 
 	// update query params if not already set
 	if (!["default", "reset", "popstate"].includes(current_updating_event)) {
@@ -41,11 +50,9 @@ export async function update_results(
 
 	search_results = [];
 	try {
-		// since CF API only lets us fetch 50 at a time,
+		// since CF API only lets us fetch 50 items at a time,
 		// this horrible code splits the desired pageSize into multiple requests
 		let queries = [];
-		let page_size = Number.parseInt(params.get("pageSize"), 10);
-
 		for (let offset = 0; offset < page_size; offset += 50) {
 			let real_page_size = Math.min(50, page_size - offset);
 			let params2 = new URLSearchParams(params);
@@ -58,6 +65,7 @@ export async function update_results(
 
 			queries.push(cf_api("/v1/mods/search", params2, { signal: current_ac.signal }));
 		}
+
 		// await each query sequentially to ensure result elements are properly ordered
 		let query_results = [];
 		for (let query of queries) {
