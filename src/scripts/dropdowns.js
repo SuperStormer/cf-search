@@ -27,9 +27,9 @@ export function populate_dropdown(dropdown, values, defaultValue) {
 		dropdown.prepend(defaultOption);
 	} else {
 		// otherwise, select the corresponding <option>
-		let option = Array.from(dropdown.options).find((x) => x.textContent === defaultValue);
-		dropdown.dataset.default = option.value;
+		let option = Array.from(dropdown.options).find((x) => x.value === defaultValue);
 		option.selected = true;
+		dropdown.dataset.default = defaultValue;
 		dropdown.dispatchEvent(new Event("change"));
 	}
 }

@@ -1,4 +1,4 @@
-import { MODLOADERS, SORT_FIELDS, SORT_ORDERS } from "./consts";
+import { MODLOADERS, SORT_FIELDS, SORT_ORDERS, DEFAULT_PARAMS } from "./consts";
 import { sort_subvers } from "./utils";
 import { populate_dropdown, fetch_dropdown_values } from "./dropdowns";
 import {
@@ -7,12 +7,9 @@ import {
 	fetch_results,
 	populate_results,
 } from "./results";
-import {
-	update_query_params,
-	get_active_filters,
-	populate_filters as _populate_filters,
-} from "./filters";
+import { get_active_filters, populate_filters as _populate_filters } from "./filters";
 
+import { update_query_params } from "./params";
 // eslint-disable-next-line sonarjs/cognitive-complexity
 (async function () {
 	const by_id = document.getElementById.bind(document);
@@ -105,11 +102,11 @@ import {
 	populate_dropdown(
 		classes_el,
 		classes.map((x) => [x.name, x.id]),
-		"Mods"
+		DEFAULT_PARAMS.classId
 	);
 
 	// modloaders
-	populate_dropdown(modloader_el, MODLOADERS, "Any");
+	populate_dropdown(modloader_el, MODLOADERS, DEFAULT_PARAMS.modLoaderType);
 
 	sub_version_el.addEventListener("change", function () {
 		update_modloader();
@@ -164,8 +161,8 @@ import {
 	});
 
 	// sort field and order
-	populate_dropdown(sort_field_el, SORT_FIELDS, "Total Downloads");
-	populate_dropdown(sort_order_el, SORT_ORDERS, "desc");
+	populate_dropdown(sort_field_el, SORT_FIELDS, DEFAULT_PARAMS.sortField);
+	populate_dropdown(sort_order_el, SORT_ORDERS, DEFAULT_PARAMS.sortOrder);
 
 	/* prefill forms based on query params*/
 	function prefill_forms() {

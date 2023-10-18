@@ -22,3 +22,11 @@ export const SORT_FIELDS = [
 	"Total Downloads",
 ].map((v, i) => [v, i + 1]);
 export const SORT_ORDERS = ["asc", "desc"].map((v) => [v, v]);
+
+export const DEFAULT_PARAMS = {
+	classId: "6", // "Mods"
+	modLoaderType: "0", // "Any"
+	sortField: "6", // "Total Downloads"
+	sortOrder: "desc",
+	pageSize: "50",
+};

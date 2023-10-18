@@ -100,16 +100,3 @@ export function filter_results(results, filters) {
 
 	return results;
 }
-
-export function update_query_params(params, filters) {
-	let params2 = new URLSearchParams(params);
-	// don't overwrite filters query params
-	let [include, exclude, max_ver, min_ver] = filters;
-	params2.set("filtersInclude", include.join(" "));
-	params2.set("filtersExclude", exclude.join(" "));
-	params2.set("maxVer", max_ver);
-	params2.set("minVer", min_ver);
-	if (window.location.search !== "?" + params2.toString()) {
-		history.pushState({}, "", "?" + params2.toString());
-	}
-}
