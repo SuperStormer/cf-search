@@ -4,6 +4,7 @@ import { cf_api } from "./api";
 import { human_readable, natural_compare } from "./utils";
 
 let search_results = [];
+
 // prevent double update_results with an AbortController
 let current_ac = null;
 export let current_updating_event = "";
@@ -240,7 +241,11 @@ function get_download_url(result, params) {
 	return `${result.links.websiteUrl}/files/all`;
 }
 
-export function populate_results_delayed(results_el, filters, use_legacy_cf) {
+export function refresh_results(results_el, filters, use_legacy_cf) {
+	// refresh results based on updated filters/settings
 	// setTimeout to avoid delay in checkbox visual update for large lists
-	setTimeout(() => populate_results(results_el, filters, search_results, use_legacy_cf), 0);
+	setTimeout(() => {
+		results_el.innerHTML = "";
+		populate_results(results_el, filters, search_results, use_legacy_cf);
+	}, 0);
 }

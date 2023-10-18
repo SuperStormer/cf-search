@@ -3,7 +3,7 @@ import { sort_subvers } from "./utils";
 import { populate_dropdown, fetch_dropdown_values } from "./dropdowns";
 import {
 	current_updating_event,
-	populate_results_delayed,
+	refresh_results,
 	fetch_results,
 	populate_results,
 } from "./results";
@@ -40,17 +40,23 @@ import {
 	const settings = {
 		show_id: {
 			value: false,
-			callback: function (toggled) {
+			on_change: function (toggled) {
 				results_el.classList.toggle("show-id", toggled);
 			},
 		},
 		show_author: {
 			value: false,
-			callback: function (toggled) {
+			on_change: function (toggled) {
 				results_el.classList.toggle("show-author", toggled);
 			},
 		},
-		use_legacy_cf: { value: false, callback: () => {} },
+		use_legacy_cf: {
+			value: false,
+			on_change: (toggled) => {
+				let filters = get_active_filters(filters_el, version_filters_els);
+				refresh_results(results_el, filters, toggled);
+			},
+		},
 	};
 
 	async function update_results(event_name) {
@@ -58,7 +64,7 @@ import {
 		let filters = get_active_filters(filters_el, version_filters_els);
 
 		// update query params only if search parameters were modified
-		if (current_updating_event === "control_change") {
+		if (event_name === "control_change") {
 			update_query_params(params, filters);
 		}
 
@@ -224,14 +230,14 @@ import {
 
 	/* setttings checkboxes*/
 	for (let setting in settings) {
-		let checkbox = by_id(setting);
+		let checkbox = by_id(setting.replace(/_/g, "-"));
 		checkbox.checked = localStorage.getItem(setting) === "true";
 
 		let on_change = function () {
 			let toggled = checkbox.checked;
-			localStorage.setItem(toggled);
+			localStorage.setItem(setting, toggled);
 			settings[setting].value = toggled;
-			settings[setting].callback(toggled);
+			settings[setting].on_change(toggled);
 		};
 
 		checkbox.addEventListener("change", on_change);
@@ -244,8 +250,7 @@ import {
 		let filters = get_active_filters(filters_el, version_filters_els);
 		update_query_params(window.location.search, filters);
 
-		results_el.innerHTML = "";
-		populate_results_delayed(results_el, filters, settings.use_legacy_cf.value);
+		refresh_results(results_el, filters, settings.use_legacy_cf.value);
 	}
 
 	/* version filters */
