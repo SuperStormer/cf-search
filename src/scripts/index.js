@@ -36,8 +36,21 @@ import {
 	const filters_el = by_id("filters");
 	const version_filters_els = document.getElementsByClassName("version-filter");
 	const show_filters = by_id("show-filters");
-	const show_id = by_id("show-id");
-	const show_author = by_id("show-author"); // eslint-disable-line sonarjs/no-duplicate-string
+	const settings = {
+		show_id: {
+			value: false,
+			callback: (toggled) => {
+				results_el.classList.toggle("show-id", toggled);
+			},
+		},
+		show_author: {
+			value: false,
+			callback: (toggled) => {
+				results_el.classList.toggle("show-author", toggled);
+			},
+		},
+		use_legacy_cf: { value: false, callback: () => {} },
+	};
 
 	const update_results = (event_name) => {
 		_update_results(
@@ -46,7 +59,8 @@ import {
 			new FormData(search_form),
 			get_active_filters(filters_el, version_filters_els),
 			page,
-			event_name
+			event_name,
+			settings.use_legacy_cf.value
 		);
 	};
 	const populate_filters = _populate_filters.bind(_populate_filters, filters_el);
@@ -200,31 +214,28 @@ import {
 		update_results("popstate");
 	});
 
-	/* "show project ids" checkbox*/
-	show_id.checked = localStorage.getItem("show_id") === "true";
-	if (show_id.checked) {
-		results_el.classList.add("show-id");
+	/* setttings checkboxes*/
+	for (let setting in settings) {
+		let checkbox = by_id(setting);
+		checkbox.checked = localStorage.getItem(setting) === "true";
+
+		let on_change = function () {
+			let toggled = checkbox.checked;
+			localStorage.setItem(toggled);
+			settings[setting].value = toggled;
+			settings[setting].callback(toggled);
+		};
+
+		checkbox.addEventListener("change", on_change);
+		on_change();
 	}
-	show_id.addEventListener("change", function () {
-		localStorage.setItem("show_id", show_id.checked);
-		results_el.classList.toggle("show-id");
-	});
-	/* "show authors" checkbox*/
-	show_author.checked = localStorage.getItem("show_author") === "true";
-	if (show_author.checked) {
-		results_el.classList.add("show-author");
-	}
-	show_author.addEventListener("change", function () {
-		localStorage.setItem("show_author", show_author.checked);
-		results_el.classList.toggle("show-author");
-	});
 
 	/* visual and version filters */
 	function update_result_filters() {
 		// handle filtering
 		let filters = get_active_filters(filters_el, version_filters_els);
 		update_query_params(window.location.search, filters);
-		populate_results_delayed(results_el, filters);
+		populate_results_delayed(results_el, filters, settings.use_legacy_cf.value);
 	}
 
 	/* version filters */

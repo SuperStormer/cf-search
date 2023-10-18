@@ -14,7 +14,8 @@ export async function update_results(
 	form_data,
 	filters,
 	page,
-	event_name
+	event_name,
+	use_legacy_cf
 ) {
 	let params = new URLSearchParams(form_data);
 
@@ -77,7 +78,7 @@ export async function update_results(
 		for (let query of queries) {
 			let query_result = await query;
 			console.log(query_result);
-			populate_results(results_el, filters, query_result);
+			populate_results(results_el, filters, query_result, use_legacy_cf);
 			query_results.push(query_result);
 		}
 		search_results = query_results.flat();
@@ -93,7 +94,7 @@ export async function update_results(
 	}
 }
 
-export function populate_results(results_el, filters, results) {
+export function populate_results(results_el, filters, results, use_legacy_cf) {
 	results = filter_results(results, filters);
 
 	let params = new URLSearchParams(window.location.search);
@@ -257,8 +258,8 @@ function get_download_url(result, params) {
 	return `${result.links.websiteUrl}/files/all`;
 }
 
-export function populate_results_delayed(results_el, filters) {
+export function populate_results_delayed(results_el, filters, use_legacy_cf) {
 	results_el.innerHTML = "";
 	// setTimeout to avoid delay in checkbox visual update for large lists
-	setTimeout(() => populate_results(results_el, filters, search_results), 0);
+	setTimeout(() => populate_results(results_el, filters, search_results, use_legacy_cf), 0);
 }
