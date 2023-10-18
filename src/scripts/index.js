@@ -34,6 +34,7 @@ import { update_query_params } from "./params";
 	const filters_el = by_id("filters");
 	const version_filters_els = document.getElementsByClassName("version-filter");
 	const show_filters = by_id("show-filters");
+
 	const settings = {
 		show_id: {
 			value: false,
@@ -56,6 +57,11 @@ import { update_query_params } from "./params";
 		},
 	};
 
+	let page = 0;
+	// avoid triggering update_results when you trigger change event programmatically
+	// (in order to populate dropdowns for prefill and default)
+	let should_update = false;
+
 	async function update_results(event_name) {
 		let params = new FormData(search_form);
 		let filters = get_active_filters(filters_el, version_filters_els);
@@ -68,18 +74,13 @@ import { update_query_params } from "./params";
 		loading_indicator.hidden = false;
 		results_el.innerHTML = "";
 
-		for await (let query_result of fetch_results(new FormData(search_form), page, event_name)) {
+		for await (let query_result of fetch_results(params, page, event_name)) {
 			populate_results(results_el, filters, query_result, settings.use_legacy_cf.value);
 		}
 
 		loading_indicator.hidden = true;
 	}
 	const populate_filters = _populate_filters.bind(_populate_filters, filters_el);
-
-	let page = 0;
-	// avoid triggering update_results when you trigger change event programmatically
-	// (in order to populate dropdowns for prefill and default)
-	let should_update = false;
 
 	// fetch values for dropdowns
 	let [classes, categories, versions, sub_versions] = await fetch_dropdown_values();
