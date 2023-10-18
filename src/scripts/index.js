@@ -4,7 +4,8 @@ import { populate_dropdown, fetch_dropdown_values } from "./dropdowns";
 import {
 	current_updating_event,
 	populate_results_delayed,
-	update_results as _update_results,
+	fetch_results,
+	populate_results,
 } from "./results";
 import {
 	update_query_params,
@@ -39,30 +40,37 @@ import {
 	const settings = {
 		show_id: {
 			value: false,
-			callback: (toggled) => {
+			callback: function (toggled) {
 				results_el.classList.toggle("show-id", toggled);
 			},
 		},
 		show_author: {
 			value: false,
-			callback: (toggled) => {
+			callback: function (toggled) {
 				results_el.classList.toggle("show-author", toggled);
 			},
 		},
 		use_legacy_cf: { value: false, callback: () => {} },
 	};
 
-	const update_results = (event_name) => {
-		_update_results(
-			results_el,
-			loading_indicator,
-			new FormData(search_form),
-			get_active_filters(filters_el, version_filters_els),
-			page,
-			event_name,
-			settings.use_legacy_cf.value
-		);
-	};
+	async function update_results(event_name) {
+		let params = new FormData(search_form);
+		let filters = get_active_filters(filters_el, version_filters_els);
+
+		// update query params only if search parameters were modified
+		if (current_updating_event === "control_change") {
+			update_query_params(params, filters);
+		}
+
+		loading_indicator.hidden = false;
+		results_el.innerHTML = "";
+
+		for await (let query_result of fetch_results(new FormData(search_form), page, event_name)) {
+			populate_results(results_el, filters, query_result, settings.use_legacy_cf.value);
+		}
+
+		loading_indicator.hidden = true;
+	}
 	const populate_filters = _populate_filters.bind(_populate_filters, filters_el);
 
 	let page = 0;
@@ -235,6 +243,8 @@ import {
 		// handle filtering
 		let filters = get_active_filters(filters_el, version_filters_els);
 		update_query_params(window.location.search, filters);
+
+		results_el.innerHTML = "";
 		populate_results_delayed(results_el, filters, settings.use_legacy_cf.value);
 	}
 

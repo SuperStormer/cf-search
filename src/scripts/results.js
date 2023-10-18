@@ -8,15 +8,7 @@ let search_results = [];
 let current_ac = null;
 export let current_updating_event = "";
 
-export async function update_results(
-	results_el,
-	loading_indicator,
-	form_data,
-	filters,
-	page,
-	event_name,
-	use_legacy_cf
-) {
+export async function* fetch_results(form_data, page, event_name) {
 	let params = new URLSearchParams(form_data);
 
 	// index + page_size <= 10,000 is a CF API limitation
@@ -34,20 +26,12 @@ export async function update_results(
 	current_ac = new AbortController();
 	current_updating_event = event_name;
 
-	// update query params only if search parameters were modified
-	if (current_updating_event === "control_change") {
-		update_query_params(params, filters);
-	}
-
 	params.append("gameId", GAME_ID);
 
 	// workaround for Curseforge API being bad
 	if (params.get("gameVersion") && params.get("modLoaderType") === "0") {
 		params.delete("modLoaderType");
 	}
-
-	loading_indicator.hidden = false;
-	results_el.innerHTML = "";
 
 	search_results = [];
 	try {
@@ -78,12 +62,10 @@ export async function update_results(
 		for (let query of queries) {
 			let query_result = await query;
 			console.log(query_result);
-			populate_results(results_el, filters, query_result, use_legacy_cf);
+			yield query_result;
 			query_results.push(query_result);
 		}
 		search_results = query_results.flat();
-
-		loading_indicator.hidden = true;
 
 		current_ac = null;
 		current_updating_event = null;
@@ -112,7 +94,7 @@ export function populate_results(results_el, filters, results, use_legacy_cf) {
 		title_link.className = "result-title-link";
 		// replace hostname to fix #8
 		let title_url = new URL(result.links.websiteUrl);
-		title_url.hostname = "www.curseforge.com";
+		title_url.hostname = use_legacy_cf ? "legacy.curseforge.com" : "www.curseforge.com";
 		title_link.href = title_url;
 		title_link.textContent = result.name;
 		title.append(title_link);
@@ -259,7 +241,6 @@ function get_download_url(result, params) {
 }
 
 export function populate_results_delayed(results_el, filters, use_legacy_cf) {
-	results_el.innerHTML = "";
 	// setTimeout to avoid delay in checkbox visual update for large lists
 	setTimeout(() => populate_results(results_el, filters, search_results, use_legacy_cf), 0);
 }
