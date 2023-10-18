@@ -181,7 +181,7 @@ import { update_query_params } from "./params";
 		// prefill page selector
 		if (params.has("page")) {
 			for (let page_el of page_els) {
-				page_el.value = params.get("page") + 1;
+				page_el.value = params.get("page");
 			}
 		}
 
@@ -355,7 +355,7 @@ import { update_query_params } from "./params";
 			}
 
 			let params = new URLSearchParams(window.location.search);
-			params.set("page", page);
+			params.set("page", page + 1);
 			history.pushState({}, "", "?" + params);
 
 			update_results("page_change");
