@@ -29,5 +29,4 @@ export const DEFAULT_PARAMS = {
 	sortField: "6", // "Total Downloads"
 	sortOrder: "desc",
 	pageSize: "50",
-	page: "1",
 };
