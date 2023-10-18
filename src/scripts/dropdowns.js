@@ -3,7 +3,7 @@ import { GAME_ID } from "./consts";
 import { cf_api } from "./api";
 
 /* populate dropdowns */
-export function populate_dropdown(dropdown, values, defaultValue) {
+export function populate_dropdown(dropdown, values, default_value) {
 	dropdown.innerHTML = "";
 	let fragment = document.createDocumentFragment();
 
@@ -16,20 +16,20 @@ export function populate_dropdown(dropdown, values, defaultValue) {
 
 	dropdown.append(fragment);
 
-	if (defaultValue == undefined) {
+	if (default_value == undefined) {
 		// if no default value is specified, create a default option with the category name
 		// based on https://stackoverflow.com/a/8442831
-		let defaultOption = document.createElement("option");
-		defaultOption.value = "";
-		defaultOption.selected = true;
-		defaultOption.textContent = dropdown.dataset.name;
+		let default_option = document.createElement("option");
+		default_option.value = "";
+		default_option.selected = true;
+		default_option.textContent = dropdown.dataset.name;
 		dropdown.dataset.default = "";
-		dropdown.prepend(defaultOption);
+		dropdown.prepend(default_option);
 	} else {
 		// otherwise, select the corresponding <option>
-		let option = Array.from(dropdown.options).find((x) => x.value === defaultValue);
+		let option = Array.from(dropdown.options).find((x) => x.value === default_value);
 		option.selected = true;
-		dropdown.dataset.default = defaultValue;
+		dropdown.dataset.default = default_value;
 		dropdown.dispatchEvent(new Event("change"));
 	}
 }
