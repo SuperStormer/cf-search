@@ -48,17 +48,17 @@
 		</form>
 		<div id="content">
 			<aside id="sidebar">
-				<header id="sidebar-header">
+				<header class="sidebar-header">
 					<span>Visual Filters</span><button id="show-filters">Show</button>
 				</header>
 				<form id="filters"></form>
-				<form id="version-filters">
+				<div id="version-filters" class="sidebar-form">
 					<header>Version:</header>
 					<label>
 						Min:
 						<input
 							id="min-version"
-							class="version-filter"
+							class="version-filter sidebar-input"
 							type="text"
 							pattern="1\.[0-9]{1,2}(\.[0-9]{1,2})?"
 							title="Minecraft version (eg. 1.16.5)"
@@ -68,17 +68,30 @@
 						Max:
 						<input
 							id="max-version"
-							class="version-filter"
+							class="version-filter sidebar-input"
 							type="text"
 							pattern="1\.[0-9]{1,2}(\.[0-9]{1,2})?"
 							title="Minecraft version (eg. 1.16.5)"
 						/>
 					</label>
-				</form>
+				</div>
 				<div id="notice">
 					Note: these filters only hide results per page, so you may see few results
 					depending on the filters you select. If this occurs, try increasing the page
 					size.
+				</div>
+				<header class="sidebar-header">Settings</header>
+				<div id="hidden-authors-container" class="sidebar-form">
+					<label>
+						Hidden authors:
+						<input
+							id="hidden-authors"
+							class="sidebar-input"
+							type="text"
+							placeholder="comma-separated"
+							title="Serilum, SHXRKIE, etc."
+						/>
+					</label>
 				</div>
 				<label id="show-author-label" class="checkbox-label">
 					<input id="show-author" type="checkbox" />Show author

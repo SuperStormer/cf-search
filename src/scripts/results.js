@@ -1,4 +1,4 @@
-import { update_query_params, filter_results } from "./filters";
+import { filter_results } from "./filters";
 import { GAME_ID } from "./consts";
 import { cf_api } from "./api";
 import { human_readable, natural_compare } from "./utils";
@@ -77,8 +77,8 @@ export async function* fetch_results(form_data, page, event_name) {
 	}
 }
 
-export function populate_results(results_el, filters, results, use_legacy_cf) {
-	results = filter_results(results, filters);
+export function populate_results(results_el, filters, results, settings) {
+	results = filter_results(results, filters, settings.hidden_authors.value);
 
 	let params = new URLSearchParams(window.location.search);
 
@@ -95,7 +95,9 @@ export function populate_results(results_el, filters, results, use_legacy_cf) {
 		title_link.className = "result-title-link";
 		// replace hostname to fix #8
 		let title_url = new URL(result.links.websiteUrl);
-		title_url.hostname = use_legacy_cf ? "legacy.curseforge.com" : "www.curseforge.com";
+		title_url.hostname = settings.use_legacy_cf.value
+			? "legacy.curseforge.com"
+			: "www.curseforge.com";
 		title_link.href = title_url;
 		title_link.textContent = result.name;
 		title.append(title_link);
@@ -214,7 +216,7 @@ function get_download_url(result, params) {
 			let file_id = result.latestFilesIndexes.find(
 				(file) =>
 					(Number.isNaN(version) || file.gameVersionTypeId === version) &&
-					(subver === "" || file.gameVersion === subver)
+					(!subver || file.gameVersion === subver)
 			).fileId;
 			return `${result.links.websiteUrl}/download/${file_id}/file`;
 		} catch (e) {
@@ -241,11 +243,11 @@ function get_download_url(result, params) {
 	return `${result.links.websiteUrl}/files/all`;
 }
 
-export function refresh_results(results_el, filters, use_legacy_cf) {
+export function refresh_results(results_el, filters, settings) {
 	// refresh results based on updated filters/settings
 	// setTimeout to avoid delay in checkbox visual update for large lists
 	setTimeout(() => {
 		results_el.innerHTML = "";
-		populate_results(results_el, filters, search_results, use_legacy_cf);
+		populate_results(results_el, filters, search_results, settings);
 	}, 0);
 }

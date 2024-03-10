@@ -2,7 +2,7 @@ import { DEFAULT_PARAMS } from "./consts";
 export function update_query_params(params, filters) {
 	let params2 = new URLSearchParams(params);
 	// don't overwrite filters query params
-	let [include, exclude, max_ver, min_ver] = filters;
+	let { include, exclude, max_ver, min_ver } = filters;
 	params2.set("filtersInclude", include.join(" "));
 	params2.set("filtersExclude", exclude.join(" "));
 	params2.set("maxVer", max_ver);

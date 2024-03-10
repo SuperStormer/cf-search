@@ -38,21 +38,34 @@ import { update_query_params } from "./params";
 	const settings = {
 		show_id: {
 			value: false,
-			on_change: function (toggled) {
+			on_change(toggled) {
 				results_el.classList.toggle("show-id", toggled);
 			},
 		},
 		show_author: {
 			value: false,
-			on_change: function (toggled) {
+			on_change(toggled) {
 				results_el.classList.toggle("show-author", toggled);
 			},
 		},
 		use_legacy_cf: {
 			value: false,
-			on_change: (toggled) => {
+			on_change() {
 				let filters = get_active_filters(filters_el, version_filters_els);
-				refresh_results(results_el, filters, toggled);
+				refresh_results(results_el, filters, settings);
+			},
+		},
+		hidden_authors: {
+			_value: [],
+			set value(value) {
+				this._value = value.split(",").map((author) => author.trim().toLowerCase());
+			},
+			get value() {
+				return this._value;
+			},
+			on_change() {
+				let filters = get_active_filters(filters_el, version_filters_els);
+				refresh_results(results_el, filters, settings);
 			},
 		},
 	};
@@ -75,7 +88,7 @@ import { update_query_params } from "./params";
 		results_el.innerHTML = "";
 
 		for await (let query_result of fetch_results(params, page, event_name)) {
-			populate_results(results_el, filters, query_result, settings.use_legacy_cf.value);
+			populate_results(results_el, filters, query_result, settings);
 		}
 
 		loading_indicator.hidden = true;
@@ -228,17 +241,23 @@ import { update_query_params } from "./params";
 
 	/* setttings checkboxes*/
 	for (let setting in settings) {
-		let checkbox = by_id(setting.replace(/_/g, "-"));
-		checkbox.checked = localStorage.getItem(setting) === "true";
+		let input = by_id(setting.replace(/_/g, "-"));
+
+		if (input.type === "checkbox") {
+			input.checked = localStorage.getItem(setting) === "true";
+		} else {
+			input.value = localStorage.getItem(setting);
+		}
 
 		let on_change = function () {
-			let toggled = checkbox.checked;
-			localStorage.setItem(setting, toggled);
-			settings[setting].value = toggled;
-			settings[setting].on_change(toggled);
+			let value = input.type === "checkbox" ? input.checked : input.value;
+			// on_change should recieve a value modified by getters/setters, but localStorage shouldn't
+			localStorage.setItem(setting, value);
+			settings[setting].value = value;
+			settings[setting].on_change(settings[setting].value);
 		};
 
-		checkbox.addEventListener("change", on_change);
+		input.addEventListener("change", on_change);
 		on_change();
 	}
 
@@ -248,7 +267,7 @@ import { update_query_params } from "./params";
 		let filters = get_active_filters(filters_el, version_filters_els);
 		update_query_params(window.location.search, filters);
 
-		refresh_results(results_el, filters, settings.use_legacy_cf.value);
+		refresh_results(results_el, filters, settings);
 	}
 
 	/* version filters */

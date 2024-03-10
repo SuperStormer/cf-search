@@ -56,11 +56,11 @@ export function get_active_filters(filters_el, version_filters_els) {
 
 	let [min_ver, max_ver] = Array.from(version_filters_els).map((x) => x.value);
 
-	return [include, exclude, max_ver, min_ver];
+	return { include, exclude, max_ver, min_ver };
 }
 
-export function filter_results(results, filters) {
-	let [include, exclude, max_ver, min_ver] = filters;
+export function filter_results(results, filters, hidden_authors) {
+	let { include, exclude, max_ver, min_ver } = filters;
 	// handle includes
 	if (include.length > 0) {
 		results = results.filter((result) =>
@@ -68,14 +68,14 @@ export function filter_results(results, filters) {
 		);
 	}
 
-	//handle excludes
+	// handle excludes
 	if (exclude.length > 0) {
 		results = results.filter((result) =>
 			result.categories.every((category) => !exclude.includes(category.id))
 		);
 	}
 
-	//handle max ver
+	// handle max ver
 	if (max_ver.length > 0) {
 		if (max_ver.split(".").length === 2) {
 			// only major version provided (eg. "1.12"),
@@ -89,12 +89,20 @@ export function filter_results(results, filters) {
 		);
 	}
 
-	//handle min ver
+	// handle min ver
 	if (min_ver.length > 0) {
 		results = results.filter((result) =>
 			result.latestFilesIndexes.some(
 				(file) => natural_compare(file.gameVersion, min_ver) >= 0
 			)
+		);
+	}
+
+	// handle authors
+	if (hidden_authors.length > 0) {
+		results = results.filter(
+			(result) =>
+				!result.authors.some((author) => hidden_authors.includes(author.name.toLowerCase()))
 		);
 	}
 
