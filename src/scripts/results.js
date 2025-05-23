@@ -166,7 +166,8 @@ export function populate_results(results_el, filters, results, settings) {
 		let logo = document.createElement("img");
 		logo.className = "result-logo";
 		if (result.logo) {
-			logo.src = result.logo.thumbnailUrl;
+			// fallback to url (fixes #18)
+			logo.src = result.logo.thumbnailUrl || result.logo.url;
 		}
 		logo.alt = "";
 
