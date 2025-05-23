@@ -4,14 +4,17 @@ export function populate_filters(filters_el, categories, checked_callback) {
 	filters_el.innerHTML = "";
 	let fragment = document.createDocumentFragment();
 
-	for (let [category, id] of categories) {
+	for (let category of categories) {
 		let el = document.createElement("label");
 		el.className = "checkbox-label";
+		if (category._is_sub_category) {
+			el.classList.add("checkbox-label-nested");
+		}
 
 		let checkbox = document.createElement("input");
 		checkbox.type = "checkbox";
-		checkbox.name = category;
-		checkbox.value = id;
+		checkbox.name = category.name;
+		checkbox.value = category.id;
 
 		checkbox.addEventListener("change", function (event) {
 			// custom checkbox behavior for filters
@@ -38,7 +41,7 @@ export function populate_filters(filters_el, categories, checked_callback) {
 			checked_callback();
 		});
 
-		let label = document.createTextNode(category);
+		let label = document.createTextNode(category.name);
 		el.append(checkbox, label);
 		fragment.append(el);
 	}

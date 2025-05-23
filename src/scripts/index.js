@@ -105,11 +105,14 @@ import { update_query_params } from "./params";
 		update_modloader();
 
 		let class_ = classes_el.value;
-		let categories2 = categories[class_].map((category) => [category.name, category.id]);
+		let category_dropdown_values = categories[class_].map((category) => [
+			category._is_sub_category ? " └ " + category.name : category.name,
+			category.id,
+		]);
 
-		populate_dropdown(categories_el, categories2);
+		populate_dropdown(categories_el, category_dropdown_values);
 
-		populate_filters(categories2, update_result_filters);
+		populate_filters(categories[class_], update_result_filters);
 	});
 
 	// classes

@@ -58,7 +58,7 @@ export function format_categories(array, class_id) {
 		id = parseInt(id, 10);
 		subcategory.sort((a, b) => natural_compare(a.name, b.name));
 		subcategory.forEach((x) => {
-			x.name = " └ " + x.name;
+			x._is_sub_category = true;
 		});
 
 		// insert subcategories below top level category

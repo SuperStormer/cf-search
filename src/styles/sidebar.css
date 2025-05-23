@@ -32,6 +32,10 @@
 	margin-top: 2px;
 }
 
+.checkbox-label-nested {
+	margin-left: 5px;
+}
+
 .sidebar-form {
 	display: flex;
 	flex-wrap: wrap;
@@ -59,7 +63,7 @@
 #notice {
 	font-style: italic;
 	font-size: 0.8rem;
-	width: 40ch;
+	max-width: 40ch;
 }
 
 #source {
