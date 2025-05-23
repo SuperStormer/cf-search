@@ -6,21 +6,21 @@ export const GAME_ID = 432;
 // see https://discord.com/channels/900128427150028811/900188519081848865/994479752410832946 (Curseforge Dev Discord)
 export const MODLOADERS = [
 	["Any", 0],
-	["Forge", 1],
 	["Fabric", 4],
-	["Quilt", 5],
 	["NeoForge", 6],
+	["Forge", 1],
+	["Quilt", 5],
 ];
 // omitted "Category", "Game Version", "Early Access", "FeaturedReleased", "Rating"
 // which either don't work or are not useful
 export const SORT_FIELDS = [
-	["Featured", 1],
 	["Popularity", 2],
+	["Total Downloads", 6],
 	["Last Updated", 3],
+	["Date Created", 11],
 	["Name", 4],
 	["Author", 5],
-	["Total Downloads", 6],
-	["Date Created", 11],
+	["Featured", 1],
 ];
 export const SORT_ORDERS = ["asc", "desc"].map((v) => [v, v]);
 
