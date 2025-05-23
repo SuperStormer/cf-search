@@ -15,6 +15,19 @@ export function partition(array, filter) {
 	return [pass, fail];
 }
 
+// based on https://stackoverflow.com/a/9229821
+export function uniq_by(array, key) {
+	const seen = Object.create(null);
+	return array.filter(function (item) {
+		if (Object.prototype.hasOwnProperty.call(seen, item[key])) {
+			return false;
+		} else {
+			seen[item[key]] = true;
+			return true;
+		}
+	});
+}
+
 // based on https://stackoverflow.com/a/4499062
 export function human_readable(number) {
 	if (number < 1000) {

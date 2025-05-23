@@ -1,7 +1,7 @@
 import { filter_results } from "./filters";
 import { GAME_ID } from "./consts";
 import { cf_api } from "./api";
-import { human_readable, natural_compare } from "./utils";
+import { human_readable, natural_compare, uniq_by } from "./utils";
 
 let search_results = [];
 
@@ -133,7 +133,8 @@ export function populate_results(results_el, filters, results, settings) {
 		// category images
 		let categories = document.createElement("div");
 		categories.className = "result-categories";
-		for (let category of result.categories) {
+		// uniquify categories to fix #20
+		for (let category of uniq_by(result.categories, "id")) {
 			// TODO change link to change form param instead
 			let el = document.createElement("a");
 			el.href = category.url;
