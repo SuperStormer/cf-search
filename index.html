@@ -16,7 +16,14 @@
 				<select id="categories" data-name="Category" name="categoryId"></select>
 				<select id="version" data-name="Version" name="gameVersionTypeId"></select>
 				<select id="sub-version" data-name="Sub-version" name="gameVersion"></select>
-				<select id="modloader" data-name="Mod Loader" name="modLoaderType"></select>
+				<select
+					id="modloader"
+					data-name="Mod Loader"
+					name="modLoaderType"
+					disabled
+					data-title="Only enabled if a sub-version and the Mods category is selected - blame Curseforge"
+					title="Only enabled if a sub-version and the Mods category is selected - blame Curseforge"
+				></select>
 				<select id="sort-field" data-name="Sort Field" name="sortField"></select>
 				<select id="sort-order" name="sortOrder"></select>
 				<label>
