@@ -125,10 +125,6 @@ import { update_query_params } from "./params";
 	// modloaders
 	populate_dropdown(modloader_el, MODLOADERS, DEFAULT_PARAMS.modLoaderType);
 
-	sub_version_el.addEventListener("change", function () {
-		update_modloader();
-	});
-
 	function disable_modloader() {
 		modloader_el.title = modloader_el.dataset.title;
 		modloader_el.disabled = true;
@@ -140,8 +136,12 @@ import { update_query_params } from "./params";
 	}
 
 	function update_modloader() {
-		if (classes_el.value === "6" && sub_version_el.value !== "") {
-			// if mods is selected and a subver is selected,
+		if (
+			["Mods", "Modpacks", "Worlds"].includes(
+				classes.find((class_) => class_.id === parseInt(classes_el.value, 10)).name
+			)
+		) {
+			// if mods or modpacks are selected
 			// enable the modloader dropdown
 			enable_modloader();
 		} else {
@@ -158,8 +158,6 @@ import { update_query_params } from "./params";
 	populate_dropdown(sub_version_el, []);
 
 	version_el.addEventListener("change", function () {
-		disable_modloader();
-
 		let val = version_el.value;
 
 		// reset subvers dropdown if version was deselected
@@ -340,8 +338,6 @@ import { update_query_params } from "./params";
 		for (let page_el of page_els) {
 			page_el.value = 1;
 		}
-
-		disable_modloader();
 	}
 
 	reset_button.addEventListener("click", function (event) {

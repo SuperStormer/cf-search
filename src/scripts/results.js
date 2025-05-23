@@ -36,7 +36,7 @@ export async function* fetch_results(form_data, page, event_name) {
 	params.append("gameId", GAME_ID);
 
 	// workaround for Curseforge API being bad
-	if (params.get("gameVersion") && params.get("modLoaderType") === "0") {
+	if (params.get("modLoaderType") === "0") {
 		params.delete("modLoaderType");
 	}
 

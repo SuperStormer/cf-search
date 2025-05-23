@@ -17,12 +17,12 @@ export function partition(array, filter) {
 
 // based on https://stackoverflow.com/a/9229821
 export function uniq_by(array, key) {
-	const seen = Object.create(null);
+	const seen = new Set();
 	return array.filter(function (item) {
-		if (Object.prototype.hasOwnProperty.call(seen, item[key])) {
+		if (seen.has(item[key])) {
 			return false;
 		} else {
-			seen[item[key]] = true;
+			seen.add(item[key]);
 			return true;
 		}
 	});
