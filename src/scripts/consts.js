@@ -11,16 +11,17 @@ export const MODLOADERS = [
 	["Quilt", 5],
 	["NeoForge", 6],
 ];
-// omitted "Category", "Game Version", "Early Access"
-// These 3 don't seem useful at all and I dunno what the last two do
+// omitted "Category", "Game Version", "Early Access", "FeaturedReleased", "Rating"
+// which either don't work or are not useful
 export const SORT_FIELDS = [
-	"Featured",
-	"Popularity",
-	"Last Updated",
-	"Name",
-	"Author",
-	"Total Downloads",
-].map((v, i) => [v, i + 1]);
+	["Featured", 1],
+	["Popularity", 2],
+	["Last Updated", 3],
+	["Name", 4],
+	["Author", 5],
+	["Total Downloads", 6],
+	["Date Created", 11],
+];
 export const SORT_ORDERS = ["asc", "desc"].map((v) => [v, v]);
 
 export const DEFAULT_PARAMS = {
