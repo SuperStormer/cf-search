@@ -1,4 +1,4 @@
-import { sort_classes, group_by, format_categories, sort_vers } from "./utils";
+import { sort_classes, group_by, format_categories, sort_vers, clean_vers } from "./utils";
 import { GAME_ID } from "./consts";
 import { cf_api } from "./api";
 
@@ -42,14 +42,6 @@ async function fetch_categories() {
 	let classes = sort_classes(categories[undefined]);
 	delete categories[undefined];
 
-	// ignore bukkit plugins, customizations, addons, shaders
-	// API doesn't work and I don't feel like figuring out why
-	let broken_classes = [5, 4546, 4559, 4979, 6552];
-	for (let id of broken_classes) {
-		delete categories[id];
-	}
-	classes = classes.filter((x) => !broken_classes.includes(x.id));
-
 	// format categories
 	for (let class_ in categories) {
 		categories[class_] = format_categories(categories[class_], class_);
@@ -63,7 +55,7 @@ async function fetch_categories() {
 }
 
 async function fetch_vers() {
-	return sort_vers(await cf_api(`/v1/games/${GAME_ID}/version-types`));
+	return sort_vers(clean_vers(await cf_api(`/v1/games/${GAME_ID}/version-types`)));
 }
 
 function fetch_subvers() {

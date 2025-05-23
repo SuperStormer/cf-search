@@ -44,7 +44,12 @@ export function natural_compare(a, b) {
 }
 
 export function sort_classes(array) {
-	return array.sort((a, b) => natural_compare(a.name, b.name));
+	// move "Mods" and "Modpacks" to the top
+	let modsIndex = array.findIndex((class_) => class_.name === "Mods");
+	let modClass = array.splice(modsIndex, 1)[0];
+	let modpackIndex = array.findIndex((class_) => class_.name === "Modpacks");
+	let modpackClass = array.splice(modpackIndex, 1)[0];
+	return [modClass, modpackClass].concat(array.sort((a, b) => natural_compare(a.name, b.name)));
 }
 
 export function format_categories(array, class_id) {
@@ -68,12 +73,18 @@ export function format_categories(array, class_id) {
 	return top_level;
 }
 
-export function sort_vers(versions) {
+export function clean_vers(versions) {
 	return versions
-		.filter((x) => x.name.startsWith("Minecraft") && x.name !== "Minecraft Beta") // TODO figure out why other versions don't work and remove this temp fix
-		.sort((a, b) => {
-			return -natural_compare(a.name, b.name);
-		});
+		.filter(
+			(version) => version.name.startsWith("Minecraft ") && version.name !== "Minecraft Beta"
+		)
+		.map((version) => ({ ...version, name: version.name.slice("Minecraft ".length) }));
+}
+
+export function sort_vers(versions) {
+	return versions.sort((a, b) => {
+		return -natural_compare(a.name, b.name);
+	});
 }
 
 export function sort_subvers(subvers) {

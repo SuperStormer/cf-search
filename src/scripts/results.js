@@ -61,7 +61,10 @@ export async function* fetch_results(form_data, page, event_name) {
 		// await each query sequentially to ensure result elements are properly ordered
 		let query_results = [];
 		for (let query of queries) {
-			let query_result = await query;
+			let query_result = (await query).filter(
+				// fix CF API returning shaders in customization search
+				(result) => result.classId === parseInt(params.get("classId"), 10)
+			);
 			console.log(query_result);
 			yield query_result;
 			query_results.push(query_result);
