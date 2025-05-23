@@ -18,21 +18,21 @@
 	#show-filters {
 		display: inline-block;
 	}
-	#sidebar.show-filters > :is(#notice, #source) {
-		display: block;
+	#sidebar:not(.show-filters) > :not(:first-child) {
+		display: none;
 	}
-	#sidebar.show-filters > :is(#filters, #version-filters, .checkbox-label) {
+
+	#version-filters {
 		display: flex;
 	}
-	#sidebar > :not(:first-child) {
-		display: none;
+
+	.result-subtitle {
+		flex-wrap: wrap;
+		row-gap: 5px;
 	}
 }
 
 @media (max-width: 475px) {
-	#notice {
-		width: 25ch;
-	}
 	#results.show-author .result-title {
 		flex-direction: column;
 		align-items: start;
@@ -49,5 +49,16 @@
 	}
 	.result-summary {
 		width: calc(100% - 80px);
+	}
+
+	.result-subtitle,
+	.result-summary,
+	.result-author,
+	.result-project-id {
+		font-size: 0.85rem;
+	}
+
+	.result-title-link {
+		font-size: 1.15rem;
 	}
 }

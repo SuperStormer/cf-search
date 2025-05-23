@@ -1,3 +1,4 @@
+/* TODO replace the hacky position: relative and floats */
 #results-container {
 	flex-grow: 0.5;
 	margin-top: 1.5em;
@@ -42,6 +43,7 @@
 .result-title {
 	display: flex;
 	flex-direction: row;
+	flex-wrap: wrap;
 	gap: 5px;
 	align-items: end;
 	margin-bottom: 5px;
@@ -73,7 +75,7 @@
 .download-button {
 	float: right;
 	clear: right;
-	margin: 5px 0 5px 0;
+	margin: 5px 0 5px 5px;
 }
 .download-button > button {
 	cursor: pointer;
@@ -81,6 +83,7 @@
 
 .result-categories {
 	float: right;
+	margin-left: 5px;
 }
 
 .result-categories,
