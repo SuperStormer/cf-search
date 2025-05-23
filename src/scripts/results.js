@@ -9,6 +9,12 @@ let search_results = [];
 let current_ac = null;
 export let current_updating_event = "";
 
+function fix_hostname(original_url, is_legacy_cf) {
+	// replace hostname to fix #8
+	let url = new URL(original_url);
+	url.hostname = is_legacy_cf ? "legacy.curseforge.com" : "www.curseforge.com";
+	return url.toString();
+}
 export async function* fetch_results(form_data, page, event_name) {
 	let params = new URLSearchParams(form_data);
 
@@ -96,12 +102,7 @@ export function populate_results(results_el, filters, results, settings) {
 
 		let title_link = document.createElement("a");
 		title_link.className = "result-title-link";
-		// replace hostname to fix #8
-		let title_url = new URL(result.links.websiteUrl);
-		title_url.hostname = settings.use_legacy_cf.value
-			? "legacy.curseforge.com"
-			: "www.curseforge.com";
-		title_link.href = title_url;
+		title_link.href = fix_hostname(result.links.websiteUrl, settings.use_legacy_cf.value);
 		title_link.textContent = result.name;
 		title.append(title_link);
 
@@ -111,7 +112,7 @@ export function populate_results(results_el, filters, results, settings) {
 			author.className = "result-author";
 			let author_link = document.createElement("a");
 			author_link.className = "result-author-link";
-			author_link.href = result.authors[0].url;
+			author_link.href = fix_hostname(result.authors[0].url, settings.use_legacy_cf.value);
 			author_link.textContent = result.authors[0].name;
 			author.append("by", author_link);
 			title.append(author);
@@ -139,16 +140,16 @@ export function populate_results(results_el, filters, results, settings) {
 		// uniquify categories to fix #20
 		for (let category of uniq_by(result.categories, "id")) {
 			// TODO change link to change form param instead
-			let el = document.createElement("a");
-			el.href = category.url;
+			let category_el = document.createElement("a");
+			category_el.href = fix_hostname(category.url, settings.use_legacy_cf.value);
 
-			let img = document.createElement("img");
-			img.className = "result-category-image";
-			img.src = category.iconUrl;
-			img.title = category.name;
+			let category_img = document.createElement("img");
+			category_img.className = "result-category-image";
+			category_img.src = category.iconUrl;
+			category_img.title = category.name;
 
-			el.append(img);
-			categories.append(el);
+			category_el.append(category_img);
+			categories.append(category_el);
 		}
 
 		// project id
@@ -159,7 +160,10 @@ export function populate_results(results_el, filters, results, settings) {
 		// download button
 		let download = document.createElement("a");
 		download.className = "download-button";
-		download.href = get_download_url(result, params);
+		download.href = fix_hostname(
+			get_download_url(result, params),
+			settings.use_legacy_cf.value
+		);
 		let download_button = document.createElement("button");
 		download_button.textContent = "Download";
 		// nesting an <button> within an <a> is technically invalid HTML5, but I don't care
