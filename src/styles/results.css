@@ -4,7 +4,8 @@
 	margin-top: 1.5em;
 }
 
-#loading-indicator {
+#loading-indicator,
+#results-notice {
 	margin-left: 5px;
 }
 

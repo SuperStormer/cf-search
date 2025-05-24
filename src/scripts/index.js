@@ -28,6 +28,7 @@ import { update_query_params } from "./params";
 
 	const page_els = document.getElementsByClassName("page");
 	const loading_indicator = by_id("loading-indicator");
+	const results_notice = by_id("results-notice");
 	const results_el = by_id("results");
 
 	const sidebar_el = by_id("sidebar");
@@ -82,6 +83,18 @@ import { update_query_params } from "./params";
 		// update query params only if search parameters were modified
 		if (event_name === "control_change") {
 			update_query_params(params, filters);
+		}
+
+		// temp fix for Bukkit Plugins and Addons not displaying
+		// TODO fix this properly by sending all sub-versions under the version selected if only the version is selected
+		// and implementing param-cleanup fully so that the gameVersionTypeId isn't just in the query string
+		let class_ = classes.find((class_) => class_.id === parseInt(classes_el.value, 10)).name;
+		if (["Bukkit Plugins", "Addons"].includes(class_)) {
+			results_notice.textContent = `Please select a sub-version. Due to api-limitations, version-only filters do not work currently for ${class_}`;
+			results_notice.hidden = false;
+			return;
+		} else {
+			results_notice.hidden = true;
 		}
 
 		loading_indicator.hidden = false;
