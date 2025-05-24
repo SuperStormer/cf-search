@@ -12,25 +12,25 @@
 	<body>
 		<form id="search-form">
 			<div id="options">
-				<select id="classes" data-name="Class" name="class"></select>
-				<select id="categories" data-name="Category" name="category"></select>
-				<select id="version" data-name="Version" name="version"></select>
-				<select id="sub-version" data-name="Sub-version" name="sub_version"></select>
+				<select id="classes" data-name="Class" name="classId"></select>
+				<select id="categories" data-name="Category" name="categoryId"></select>
+				<select id="version" data-name="Version" name="gameVersionTypeId"></select>
+				<select id="sub-version" data-name="Sub-version" name="gameVersion"></select>
 				<select
 					id="modloader"
 					data-name="Mod Loader"
-					name="modloader"
+					name="modLoaderType"
 					disabled
 					data-title="Only enabled if Mods or Modpacks categories are selected"
 					title="Only enabled if Mods or Modpacks categories are selected"
 				></select>
-				<select id="sort-field" data-name="Sort Field" name="sort_field"></select>
-				<select id="sort-order" name="sort_order"></select>
+				<select id="sort-field" data-name="Sort Field" name="sortField"></select>
+				<select id="sort-order" name="sortOrder"></select>
 				<label>
 					Page Size:
 					<input
 						id="page-size"
-						name="page_size"
+						name="pageSize"
 						type="number"
 						value="50"
 						data-default="50"
@@ -41,7 +41,7 @@
 				</label>
 			</div>
 			<div id="main-row">
-				<input id="query" name="search" placeholder="Search" />
+				<input id="query" name="searchFilter" placeholder="Search" />
 				<button id="submit-button">Submit</button>
 				<button id="reset">Reset</button>
 			</div>
