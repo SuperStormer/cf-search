@@ -9,7 +9,7 @@ import {
 } from "./results";
 import { get_active_filters, populate_filters as _populate_filters } from "./filters";
 
-import { update_query_params } from "./params";
+import { update_query_params, load_query_params, to_api_params } from "./params";
 // eslint-disable-next-line sonarjs/cognitive-complexity
 (async function () {
 	const by_id = document.getElementById.bind(document);
@@ -87,7 +87,7 @@ import { update_query_params } from "./params";
 		loading_indicator.hidden = false;
 		results_el.innerHTML = "";
 
-		for await (let query_result of fetch_results(params, page, event_name)) {
+		for await (let query_result of fetch_results(to_api_params(params), page, event_name)) {
 			populate_results(results_el, filters, query_result, settings);
 		}
 
@@ -182,7 +182,7 @@ import { update_query_params } from "./params";
 	/* prefill forms based on query params*/
 	function prefill_forms() {
 		should_update = false;
-		let params = new URLSearchParams(window.location.search);
+		const params = load_query_params();
 
 		// prefill search form
 		for (let control of search_form.elements) {
@@ -200,8 +200,8 @@ import { update_query_params } from "./params";
 		}
 
 		// prefill visual filters
-		if (params.has("filtersInclude")) {
-			let filters = params.get("filtersInclude").split(" ");
+		if (params.has("include_filters")) {
+			let filters = params.get("include_filters").split(" ");
 			for (let control of filters_el.elements) {
 				if (filters.includes(control.value)) {
 					control.checked = true;
@@ -209,8 +209,8 @@ import { update_query_params } from "./params";
 				}
 			}
 		}
-		if (params.has("filtersExclude")) {
-			let filters = params.get("filtersExclude").split(" ");
+		if (params.has("exclude_filters")) {
+			let filters = params.get("exclude_filters").split(" ");
 			for (let control of filters_el.elements) {
 				if (filters.includes(control.value)) {
 					control.indeterminate = true;
@@ -221,11 +221,11 @@ import { update_query_params } from "./params";
 		}
 
 		// prefill version filters
-		if (params.has("minVer")) {
-			version_filters_els[0].value = params.get("minVer");
+		if (params.has("min_version")) {
+			version_filters_els[0].value = params.get("min_version");
 		}
-		if (params.has("maxVer")) {
-			version_filters_els[1].value = params.get("maxVer");
+		if (params.has("max_version")) {
+			version_filters_els[1].value = params.get("max_version");
 		}
 
 		should_update = true;
